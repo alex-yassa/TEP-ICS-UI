@@ -5201,7 +5201,14 @@
                   "states": "",
                   "useStyle": "pinpad_btn",
                   "localStyles": {
-                    "objID": "eb5dfef2-7b74-46cc-cb0d-b8787c04296f"
+                    "objID": "eb5dfef2-7b74-46cc-cb0d-b8787c04296f",
+                    "definition": {
+                      "MAIN": {
+                        "PRESSED": {
+                          "bg_color": "#016800"
+                        }
+                      }
+                    }
                   },
                   "group": "",
                   "groupIndex": 0
@@ -5293,7 +5300,14 @@
                   "states": "",
                   "useStyle": "pinpad_btn",
                   "localStyles": {
-                    "objID": "d46e6a24-7d96-4b0d-99c7-21adf438e1ac"
+                    "objID": "d46e6a24-7d96-4b0d-99c7-21adf438e1ac",
+                    "definition": {
+                      "MAIN": {
+                        "PRESSED": {
+                          "bg_color": "#016800"
+                        }
+                      }
+                    }
                   },
                   "group": "",
                   "groupIndex": 0
@@ -5385,7 +5399,14 @@
                   "states": "",
                   "useStyle": "pinpad_btn",
                   "localStyles": {
-                    "objID": "c8f531cc-9f8b-41db-cf68-b75387c81276"
+                    "objID": "c8f531cc-9f8b-41db-cf68-b75387c81276",
+                    "definition": {
+                      "MAIN": {
+                        "PRESSED": {
+                          "bg_color": "#016800"
+                        }
+                      }
+                    }
                   },
                   "group": "",
                   "groupIndex": 0
@@ -5477,7 +5498,14 @@
                   "states": "",
                   "useStyle": "pinpad_btn",
                   "localStyles": {
-                    "objID": "8a138e3a-6820-4f7a-f5ef-b9f1b5037faf"
+                    "objID": "8a138e3a-6820-4f7a-f5ef-b9f1b5037faf",
+                    "definition": {
+                      "MAIN": {
+                        "PRESSED": {
+                          "bg_color": "#016800"
+                        }
+                      }
+                    }
                   },
                   "group": "",
                   "groupIndex": 0
@@ -5569,7 +5597,14 @@
                   "states": "",
                   "useStyle": "pinpad_btn",
                   "localStyles": {
-                    "objID": "f35c03ba-3919-4ce3-9910-e82e318d3463"
+                    "objID": "f35c03ba-3919-4ce3-9910-e82e318d3463",
+                    "definition": {
+                      "MAIN": {
+                        "PRESSED": {
+                          "bg_color": "#016800"
+                        }
+                      }
+                    }
                   },
                   "group": "",
                   "groupIndex": 0

@@ -1224,6 +1224,7 @@ void create_screen_dashboard() {
                     lv_obj_set_pos(obj, 110, 427);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -1243,6 +1244,7 @@ void create_screen_dashboard() {
                     lv_obj_set_pos(obj, 173, 427);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -1262,6 +1264,7 @@ void create_screen_dashboard() {
                     lv_obj_set_pos(obj, 238, 427);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -1281,6 +1284,7 @@ void create_screen_dashboard() {
                     lv_obj_set_pos(obj, 303, 427);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
                     {
                         lv_obj_t *parent_obj = obj;
                         {
@@ -1300,6 +1304,7 @@ void create_screen_dashboard() {
                     lv_obj_set_pos(obj, 365, 427);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
                     {
                         lv_obj_t *parent_obj = obj;
                         {

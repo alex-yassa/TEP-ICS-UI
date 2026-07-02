@@ -10,7 +10,301 @@ TARGET_SRC_DIR = os.path.join(PROJECT_ROOT, "CM4/Core/Src/eez_ui")
 RELEASE_DIR = os.path.join(PROJECT_ROOT, "STM32CubeIDE/CM4/Release")
 SUBDIR_MK_PATH = os.path.join(RELEASE_DIR, "Application/User/Core/eez_ui/subdir.mk")
 
+def preprocess_and_patch():
+    src_project_ui = os.path.join(PROJECT_ROOT, "EEZ/Riverdi-template/src/ui")
+    eez_output_dir = os.path.join(PROJECT_ROOT, "EEZ_Output")
+    
+    if not os.path.exists(src_project_ui):
+        return
+        
+    print(f"Syncing and patching generated UI files from {src_project_ui} to {eez_output_dir}...")
+    
+    # 1. Copy files
+    files_to_sync = ["screens.c", "screens.h", "images.c", "images.h", "ui.c", "ui.h", "vars.c", "vars.h", "styles.c", "styles.h"]
+    for f in files_to_sync:
+        src_path = os.path.join(src_project_ui, f)
+        dest_path = os.path.join(eez_output_dir, f)
+        if os.path.exists(src_path):
+            shutil.copy2(src_path, dest_path)
+            
+    # 2. Patch images.h
+    images_h_path = os.path.join(eez_output_dir, "images.h")
+    if os.path.exists(images_h_path):
+        with open(images_h_path, "r") as f:
+            content = f.read()
+        
+        # Remove ico declarations
+        import re
+        content = re.sub(r'extern const lv_img_dsc_t img_ico_[\w_]+;\n', '', content)
+        
+        # Add img_splash_logo
+        if "img_splash_logo" not in content:
+            content = content.replace(
+                'extern const lv_img_dsc_t img_twerd_energo_plus_logo;',
+                'extern const lv_img_dsc_t img_twerd_energo_plus_logo;\nextern const lv_img_dsc_t img_splash_logo;'
+            )
+            
+        # Change size of images array to 3
+        content = re.sub(r'extern const ext_img_desc_t images\[\d+\];', 'extern const ext_img_desc_t images[3];', content)
+        
+        with open(images_h_path, "w") as f:
+            f.write(content)
+            
+    # 3. Patch images.c
+    images_c_path = os.path.join(eez_output_dir, "images.c")
+    if os.path.exists(images_c_path):
+        new_images_c = """#include "images.h"
+
+const ext_img_desc_t images[3] = {
+    { "twerd-energo-plus-logo", &img_twerd_energo_plus_logo },
+    { "splash-logo", &img_splash_logo },
+    { "control-system-label", &img_control_system_label },
+};
+"""
+        with open(images_c_path, "w") as f:
+            f.write(new_images_c)
+            
+    # 4. Patch screens.h
+    screens_h_path = os.path.join(eez_output_dir, "screens.h")
+    if os.path.exists(screens_h_path):
+        with open(screens_h_path, "r") as f:
+            content = f.read()
+            
+        # Add SCREEN_ID_MAIN
+        if "SCREEN_ID_MAIN" not in content:
+            content = content.replace(
+                'SCREEN_ID_DASHBOARD = 1,',
+                'SCREEN_ID_MAIN = 1,\n    SCREEN_ID_DASHBOARD = 2,'
+            )
+            content = content.replace(
+                '_SCREEN_ID_LAST = 1',
+                '_SCREEN_ID_LAST = 2'
+            )
+            
+        # Add splash variables to objects_t
+        if "splash_obj0" not in content:
+            content = content.replace(
+                'typedef struct _objects_t {\n    lv_obj_t *dashboard;',
+                'typedef struct _objects_t {\n    lv_obj_t *main;\n    lv_obj_t *dashboard;\n    \n    // Splash screen components\n    lv_obj_t *splash_obj0;\n    lv_obj_t *splash_obj1;'
+            )
+            
+        # Add main screen functions
+        if "create_screen_main" not in content:
+            content = content.replace(
+                'void create_screen_dashboard();',
+                'void create_screen_main();\nvoid tick_screen_main();\n\nvoid create_screen_dashboard();'
+            )
+            
+        with open(screens_h_path, "w") as f:
+            f.write(content)
+            
+    # 5. Patch screens.c
+    screens_c_path = os.path.join(eez_output_dir, "screens.c")
+    if os.path.exists(screens_c_path):
+        with open(screens_c_path, "r") as f:
+            content = f.read()
+            
+        # Replace tick_screen logic
+        old_tick_funcs = """typedef void (*tick_screen_func_t)();
+tick_screen_func_t tick_screen_funcs[] = {
+    tick_screen_dashboard,
+};
+void tick_screen(int screen_index) {
+    if (screen_index >= 0 && screen_index < 1) {
+        tick_screen_funcs[screen_index]();
+    }
+}"""
+        new_tick_funcs = """extern const lv_img_dsc_t img_splash_logo;
+
+void create_screen_main() {
+    lv_obj_t *obj = lv_obj_create(0);
+    objects.main = obj;
+    lv_obj_set_pos(obj, 0, 0);
+    lv_obj_set_size(obj, 1024, 600);
+    {
+        lv_obj_t *parent_obj = obj;
+        {
+            lv_obj_t *obj = lv_obj_create(parent_obj);
+            objects.splash_obj0 = obj;
+            lv_obj_set_pos(obj, 0, 0);
+            lv_obj_set_size(obj, 1024, 600);
+            lv_obj_set_style_bg_color(obj, lv_color_hex(0x030088), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_layout(obj, LV_LAYOUT_FLEX, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_flex_flow(obj, LV_FLEX_FLOW_ROW, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_flex_main_place(obj, LV_FLEX_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_flex_cross_place(obj, LV_FLEX_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_flex_track_place(obj, LV_FLEX_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_border_color(obj, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        }
+        {
+            lv_obj_t *obj = lv_img_create(parent_obj);
+            objects.splash_obj1 = obj;
+            lv_obj_set_pos(obj, 306, 265);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_img_set_src(obj, &img_splash_logo);
+            lv_obj_set_style_img_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_img_recolor_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_img_recolor(obj, lv_color_hex(0xdddddd), LV_PART_MAIN | LV_STATE_DEFAULT);
+        }
+    }
+    
+    tick_screen_main();
+}
+
+void tick_screen_main() {
+}
+
+typedef void (*tick_screen_func_t)();
+tick_screen_func_t tick_screen_funcs[] = {
+    tick_screen_main,
+    tick_screen_dashboard,
+};
+void tick_screen(int screen_index) {
+    if (screen_index >= 0 && screen_index < 2) {
+        tick_screen_funcs[screen_index]();
+    }
+}"""
+        if "create_screen_main" not in content:
+            content = content.replace(old_tick_funcs, new_tick_funcs)
+            
+        # Replace screens creation
+        if "create_screen_main();" not in content:
+            content = content.replace(
+                'create_screen_dashboard();',
+                'create_screen_main();\n    create_screen_dashboard();'
+            )
+            
+        with open(screens_c_path, "w") as f:
+            f.write(content)
+            
+    # 6. Patch ui.c
+    ui_c_path = os.path.join(eez_output_dir, "ui.c")
+    if os.path.exists(ui_c_path):
+        custom_ui_c = """#include "ui.h"
+#include "screens.h"
+#include "images.h"
+#include "actions.h"
+#include "vars.h"
+#include "lvgl/lvgl.h"
+#include "app_hardware.h"
+
+#include <string.h>
+
+static int16_t currentScreen = -1;
+static uint32_t splash_start_time = 0;
+static bool splash_done = false;
+
+static lv_obj_t *getLvglObjectFromIndex(int32_t index) {
+    if (index == -1) {
+        return 0;
+    }
+    return ((lv_obj_t **)&objects)[index];
+}
+
+void loadScreen(enum ScreensEnum screenId) {
+    currentScreen = screenId - 1;
+    lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
+    lv_scr_load(screen);
+
+    // If dashboard is loaded, check if we should show/hide keyboard test panel
+    if (screenId == SCREEN_ID_DASHBOARD) {
+#if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
+        if (objects.keyboard_test) {
+            lv_obj_clear_flag(objects.keyboard_test, LV_OBJ_FLAG_HIDDEN);
+        }
+#else
+        if (objects.keyboard_test) {
+            lv_obj_add_flag(objects.keyboard_test, LV_OBJ_FLAG_HIDDEN);
+        }
+#endif
+    }
+}
+
+void ui_init() {
+    create_screens();
+    loadScreen(SCREEN_ID_MAIN);
+    splash_start_time = lv_tick_get();
+}
+
+#if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
+#ifndef PC_SIMULATOR
+#include "main.h"
+#define IS_UP_PRESSED()    (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_UP_PIN) == GPIO_PIN_RESET)
+#define IS_DOWN_PRESSED()  (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_DOWN_PIN) == GPIO_PIN_RESET)
+#define IS_LEFT_PRESSED()  (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_LEFT_PIN) == GPIO_PIN_RESET)
+#define IS_RIGHT_PRESSED() (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_RIGHT_PIN) == GPIO_PIN_RESET)
+#define IS_ENTER_PRESSED() (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_ENTER_PIN) == GPIO_PIN_RESET)
+#define IS_BACK_PRESSED()  (HAL_GPIO_ReadPin(BTN_GPIO_PORT, BTN_BACK_PIN) == GPIO_PIN_RESET)
+#else
+extern bool sim_key_up, sim_key_down, sim_key_left, sim_key_right, sim_key_enter, sim_key_back;
+#define IS_UP_PRESSED()    sim_key_up
+#define IS_DOWN_PRESSED()  sim_key_down
+#define IS_LEFT_PRESSED()  sim_key_left
+#define IS_RIGHT_PRESSED() sim_key_right
+#define IS_ENTER_PRESSED() sim_key_enter
+#define IS_BACK_PRESSED()  sim_key_back
+#endif
+
+static void update_keyboard_test_button_states(void) {
+    if (objects.keyboard_test) {
+        if (IS_UP_PRESSED()) {
+            lv_obj_add_state(objects.btn_up, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_up, LV_STATE_PRESSED);
+        }
+        if (IS_DOWN_PRESSED()) {
+            lv_obj_add_state(objects.btn_down, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_down, LV_STATE_PRESSED);
+        }
+        if (IS_LEFT_PRESSED()) {
+            lv_obj_add_state(objects.btn_left, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_left, LV_STATE_PRESSED);
+        }
+        if (IS_RIGHT_PRESSED()) {
+            lv_obj_add_state(objects.btn_right, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_right, LV_STATE_PRESSED);
+        }
+        if (IS_ENTER_PRESSED()) {
+            lv_obj_add_state(objects.btn_enter, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_enter, LV_STATE_PRESSED);
+        }
+        if (IS_BACK_PRESSED()) {
+            lv_obj_add_state(objects.btn_backspace, LV_STATE_PRESSED);
+        } else {
+            lv_obj_clear_state(objects.btn_backspace, LV_STATE_PRESSED);
+        }
+    }
+}
+#endif
+
+void ui_tick() {
+    tick_screen(currentScreen);
+
+#if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
+    update_keyboard_test_button_states();
+#endif
+
+    if (!splash_done && currentScreen == (SCREEN_ID_MAIN - 1)) {
+        if (lv_tick_elaps(splash_start_time) >= 2000) {
+            splash_done = true;
+            loadScreen(SCREEN_ID_DASHBOARD);
+        }
+    }
+}
+"""
+        with open(ui_c_path, "w") as f:
+            f.write(custom_ui_c)
+
 def main():
+    # 0. Sync and patch files before copying
+    preprocess_and_patch()
+
     # 1. Parse command-line args for source directory
     source_dir = ""
     if len(sys.argv) > 1:

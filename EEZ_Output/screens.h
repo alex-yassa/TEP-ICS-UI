@@ -23,8 +23,6 @@ typedef struct _objects_t {
     // Splash screen components
     lv_obj_t *splash_obj0;
     lv_obj_t *splash_obj1;
-
-    // Dashboard components
     lv_obj_t *header;
     lv_obj_t *twerd_energo_plus_label;
     lv_obj_t *twerd_energo_plus_label_1;

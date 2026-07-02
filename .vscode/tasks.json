@@ -224,7 +224,7 @@
         {
             "label": "Simulator: Build (Docker)",
             "type": "shell",
-            "command": "echo '#define KEYBOARD_TEST_ENABLE 0' > EEZ_Output/keyboard_test_config.h && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 0' > EEZ_Output/keyboard_test_config.h && python3 port_eez_ui.py && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -256,7 +256,7 @@
         {
             "label": "Simulator: Build keybord test (Docker)",
             "type": "shell",
-            "command": "echo '#define KEYBOARD_TEST_ENABLE 1' > EEZ_Output/keyboard_test_config.h && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 1' > EEZ_Output/keyboard_test_config.h && python3 port_eez_ui.py && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
