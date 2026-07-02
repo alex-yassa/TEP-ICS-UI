@@ -20,6 +20,14 @@ static bool key_pressed = false;
 static lv_indev_drv_t indev_drv;
 static lv_indev_t *keypad_indev = NULL;
 
+/* Simulator keyboard state tracking for keyboard test screen */
+bool sim_key_up = false;
+bool sim_key_down = false;
+bool sim_key_left = false;
+bool sim_key_right = false;
+bool sim_key_enter = false;
+bool sim_key_back = false;
+
 /* SDL Display Flush Callback */
 static void sdl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
@@ -156,6 +164,16 @@ void sdl_handle_key_event(SDL_Event *event)
   {
     key_pressed = true;
 
+    switch (event->key.keysym.sym) {
+      case SDLK_UP:     sim_key_up = true; break;
+      case SDLK_DOWN:   sim_key_down = true; break;
+      case SDLK_LEFT:   sim_key_left = true; break;
+      case SDLK_RIGHT:  sim_key_right = true; break;
+      case SDLK_RETURN:
+      case SDLK_KP_ENTER: sim_key_enter = true; break;
+      case SDLK_ESCAPE: sim_key_back = true; break;
+    }
+
     if (event->key.keysym.sym == SDLK_LEFT) left_held = true;
     if (event->key.keysym.sym == SDLK_RIGHT) right_held = true;
 
@@ -228,6 +246,15 @@ void sdl_handle_key_event(SDL_Event *event)
   else if (event->type == SDL_KEYUP)
   {
     key_pressed = false;
+    switch (event->key.keysym.sym) {
+      case SDLK_UP:     sim_key_up = false; break;
+      case SDLK_DOWN:   sim_key_down = false; break;
+      case SDLK_LEFT:   sim_key_left = false; break;
+      case SDLK_RIGHT:  sim_key_right = false; break;
+      case SDLK_RETURN:
+      case SDLK_KP_ENTER: sim_key_enter = false; break;
+      case SDLK_ESCAPE: sim_key_back = false; break;
+    }
     if (event->key.keysym.sym == SDLK_LEFT) left_held = false;
     if (event->key.keysym.sym == SDLK_RIGHT) right_held = false;
   }

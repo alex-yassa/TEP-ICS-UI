@@ -1181,6 +1181,139 @@ void create_screen_dashboard() {
                 }
             }
         }
+        {
+            // keyboard-test
+            lv_obj_t *obj = lv_obj_create(parent_obj);
+            objects.keyboard_test = obj;
+            lv_obj_set_pos(obj, 0, 0);
+            lv_obj_set_size(obj, 1024, 600);
+            lv_obj_set_style_bg_color(obj, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+            {
+                lv_obj_t *parent_obj = obj;
+                {
+                    lv_obj_t *obj = lv_img_create(parent_obj);
+                    lv_obj_set_pos(obj, 10, 12);
+                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                    lv_img_set_src(obj, &img_twerd_energo_plus_logo);
+                }
+                {
+                    // btn-left
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_left = obj;
+                    lv_obj_set_pos(obj, 48, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "5");
+                        }
+                    }
+                }
+                {
+                    // btn-right
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_right = obj;
+                    lv_obj_set_pos(obj, 110, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "6");
+                        }
+                    }
+                }
+                {
+                    // btn-up
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_up = obj;
+                    lv_obj_set_pos(obj, 173, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "7");
+                        }
+                    }
+                }
+                {
+                    // btn-down
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_down = obj;
+                    lv_obj_set_pos(obj, 238, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "4");
+                        }
+                    }
+                }
+                {
+                    // btn-backspace
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_backspace = obj;
+                    lv_obj_set_pos(obj, 303, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "X");
+                        }
+                    }
+                }
+                {
+                    // btn-enter
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_enter = obj;
+                    lv_obj_set_pos(obj, 365, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_ico_custom(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "Z");
+                        }
+                    }
+                }
+            }
+        }
     }
     
     tick_screen_dashboard();

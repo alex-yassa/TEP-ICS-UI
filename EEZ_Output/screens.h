@@ -85,6 +85,13 @@ typedef struct _objects_t {
     lv_obj_t *pinpad_btn_ok;
     lv_obj_t *obj3;
     lv_obj_t *pinpad_btn_dummy;
+    lv_obj_t *keyboard_test;
+    lv_obj_t *btn_left;
+    lv_obj_t *btn_right;
+    lv_obj_t *btn_up;
+    lv_obj_t *btn_down;
+    lv_obj_t *btn_backspace;
+    lv_obj_t *btn_enter;
 } objects_t;
 
 extern objects_t objects;

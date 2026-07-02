@@ -12,4 +12,10 @@ void app_set_login_state(const char *username, uint8_t access_level);
 /* Post-init UI hook: call once after ui_init() to set up custom event bindings */
 void app_ui_init(void);
 
+#include "keyboard_test_config.h"
+
+#ifndef KEYBOARD_TEST_ENABLE
+#define KEYBOARD_TEST_ENABLE 0
+#endif
+
 #endif /* APP_HARDWARE_H */

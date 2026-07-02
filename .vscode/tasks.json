@@ -4,7 +4,40 @@
         {
             "label": "Docker: Build CM4",
             "type": "shell",
-            "command": "docker compose run --rm builder make cm4",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 0' > EEZ_Output/keyboard_test_config.h && docker compose run --rm builder make cm4",
+            "dependsOn": "Ensure Makefiles (Host)",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": {
+                "owner": "gcc",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Docker: Build CM4 keybord test",
+            "type": "shell",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 1' > EEZ_Output/keyboard_test_config.h && docker compose run --rm builder make cm4",
             "dependsOn": "Ensure Makefiles (Host)",
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -191,7 +224,39 @@
         {
             "label": "Simulator: Build (Docker)",
             "type": "shell",
-            "command": "export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 0' > EEZ_Output/keyboard_test_config.h && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": {
+                "owner": "gcc",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Simulator: Build keybord test (Docker)",
+            "type": "shell",
+            "command": "echo '#define KEYBOARD_TEST_ENABLE 1' > EEZ_Output/keyboard_test_config.h && export UID GID=$(id -g) && docker compose run --rm builder bash -c 'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -246,6 +311,24 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Simulator: Build (Docker)",
+                "Simulator: Run (Host)"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Simulator: Build & Run keyboard test",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Simulator: Build keybord test (Docker)",
                 "Simulator: Run (Host)"
             ],
             "group": {
