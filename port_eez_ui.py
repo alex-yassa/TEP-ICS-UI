@@ -16,12 +16,7 @@ def main():
     if len(sys.argv) > 1:
         source_dir = sys.argv[1]
     else:
-        # Check if user generated code in default eez project path first
-        default_project_path = os.path.join(PROJECT_ROOT, "EEZ/Riverdi-template/src/ui")
-        if os.path.exists(default_project_path) and any(f.endswith('.c') for f in os.listdir(default_project_path)):
-            source_dir = default_project_path
-        else:
-            source_dir = os.path.join(PROJECT_ROOT, "EEZ_Output")
+        source_dir = os.path.join(PROJECT_ROOT, "EEZ_Output")
 
     if not os.path.exists(source_dir):
         print(f"Source directory '{source_dir}' does not exist. Creating it...")

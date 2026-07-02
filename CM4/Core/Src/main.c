@@ -26,8 +26,10 @@
 #include "i2c.h"
 #include "lvgl/lvgl.h"
 #include "porting/lv_port_disp.h"
+#include "porting/lv_port_indev.h"
 #include "lvgl_port_touch.h"
 #include "ui.h"
+#include "app_hardware.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +59,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+static void MX_GPIO_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -106,6 +108,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_MDMA_Init();
   /* USER CODE BEGIN 2 */
+  MX_GPIO_Init();
   MX_I2C1_Init();
   MX_DMA2D_Init();
 
@@ -115,9 +118,11 @@ int main(void)
   /* initialize display and touchscreen */
   lv_port_disp_init();
   lvgl_touchscreen_init();
+  lv_port_indev_init();
 
   /* Initialize EEZ-generated UI */
   ui_init();
+  app_ui_init();
 
   /* USER CODE END 2 */
 
@@ -144,7 +149,20 @@ int main(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
+  /* Enable GPIO Clocks for buttons (GPIOA) */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /* Configure physical navigation buttons: UP, DOWN, LEFT, RIGHT, ENTER, BACK as active-low input keys */
+  GPIO_InitStruct.Pin = BTN_UP_PIN | BTN_DOWN_PIN | BTN_LEFT_PIN | BTN_RIGHT_PIN | BTN_ENTER_PIN | BTN_BACK_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(BTN_GPIO_PORT, &GPIO_InitStruct);
+}
 /* USER CODE END 4 */
 
 /**

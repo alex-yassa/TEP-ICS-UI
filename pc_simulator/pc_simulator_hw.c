@@ -16,6 +16,7 @@
 #include "shared_memory.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /* -----------------------------------------------------------------------
@@ -72,4 +73,22 @@ void HAL_Delay(uint32_t Delay)
 void sim_log(const char *msg)
 {
     printf("[PC SIM] %s\n", msg);
+}
+
+void app_set_inverter_state(bool run)
+{
+    printf("[PC SIMULATOR] Inverter state command: %s\n", run ? "START" : "STOP");
+}
+
+void app_log_event(const char *message)
+{
+    printf("[PC SIMULATOR EVENT LOG] %s\n", message);
+}
+
+void app_set_login_state(const char *username, uint8_t access_level)
+{
+    strncpy((char*)sim_shared_buffer.login_username, username, sizeof(sim_shared_buffer.login_username) - 1);
+    sim_shared_buffer.login_username[sizeof(sim_shared_buffer.login_username) - 1] = '\0';
+    sim_shared_buffer.login_access_level = access_level;
+    printf("[PC SIMULATOR AUTH] User logged in: %s (level %d)\n", username, access_level);
 }

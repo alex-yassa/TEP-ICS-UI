@@ -18,6 +18,7 @@
 #include "lvgl/lvgl.h"
 #include "sdl_port.h"
 #include "ui.h"
+#include "app_hardware.h"
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
 
     /* 4. Initialise the EEZ-generated HMI screens */
     ui_init();
+    app_ui_init();
 
     printf("=======================================================\n");
     printf("  Riverdi STM32H7 1024x600 LVGL PC Simulator\n");

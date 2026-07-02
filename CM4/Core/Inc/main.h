@@ -73,6 +73,15 @@ void Error_Handler(void);
 #define CTP_INT_Pin                   GPIO_PIN_3
 #define CTP_INT_GPIO_Port             GPIOH
 #define CTP_INT_EXTI_IRQn             EXTI3_IRQn
+
+/* Pin mappings for the physical HMI buttons */
+#define BTN_GPIO_PORT                     GPIOA
+#define BTN_UP_PIN                        GPIO_PIN_0
+#define BTN_DOWN_PIN                      GPIO_PIN_1
+#define BTN_LEFT_PIN                      GPIO_PIN_2
+#define BTN_RIGHT_PIN                     GPIO_PIN_3
+#define BTN_ENTER_PIN                     GPIO_PIN_4
+#define BTN_BACK_PIN                      GPIO_PIN_5
 /* USER CODE END Private defines */
 
 /* Exported functions prototypes ---------------------------------------------*/
