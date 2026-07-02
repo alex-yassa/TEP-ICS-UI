@@ -39,6 +39,14 @@ typedef struct {
   /* User login state (Written by CM4 UI, read by CM7) */
   char login_username[32];
   uint8_t login_access_level; /* AccessLevel_t */
+
+  /* Date and Time (Written by CM7 RTC, read by CM4 UI) */
+  uint8_t rtc_hours;
+  uint8_t rtc_minutes;
+  uint8_t rtc_seconds;
+  uint8_t rtc_day;
+  uint8_t rtc_month;
+  uint16_t rtc_year;
 } SharedBuffer_t;
 
 typedef enum {

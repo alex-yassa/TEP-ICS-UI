@@ -25,7 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "shared_memory.h"
+#include "rtc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -151,7 +152,29 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+    
+    // Read RTC time and date (must call both to unlock shadow registers)
+    if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK)
+    {
+      HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+      
+      // Update Shared memory under Hardware Semaphore protection
+      if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK)
+      {
+        volatile SharedBuffer_t *shared = SHARED_BUFFER;
+        shared->rtc_hours = sTime.Hours;
+        shared->rtc_minutes = sTime.Minutes;
+        shared->rtc_seconds = sTime.Seconds;
+        shared->rtc_day = sDate.Date;
+        shared->rtc_month = sDate.Month;
+        shared->rtc_year = 2000 + sDate.Year;
+        HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
+      }
+    }
+    
+    osDelay(500); // 500 ms periodic update
   }
   /* USER CODE END StartDefaultTask */
 }

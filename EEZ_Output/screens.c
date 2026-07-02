@@ -38,6 +38,7 @@ void create_screen_dashboard() {
             lv_obj_set_pos(obj, 0, 0);
             lv_obj_set_size(obj, 1024, 46);
             lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_GESTURE_BUBBLE|LV_OBJ_FLAG_PRESS_LOCK|LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_SCROLL_CHAIN_HOR|LV_OBJ_FLAG_SCROLL_CHAIN_VER|LV_OBJ_FLAG_SCROLL_ELASTIC|LV_OBJ_FLAG_SCROLL_MOMENTUM|LV_OBJ_FLAG_SCROLL_WITH_ARROW|LV_OBJ_FLAG_SNAPPABLE);
+            add_style_pannel_style(obj);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -48,7 +49,7 @@ void create_screen_dashboard() {
                     // twerd-energo-plus-label
                     lv_obj_t *obj = lv_img_create(parent_obj);
                     objects.twerd_energo_plus_label = obj;
-                    lv_obj_set_pos(obj, -20, -21);
+                    lv_obj_set_pos(obj, -20, -20);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_img_set_src(obj, &img_twerd_energo_plus_logo);
                 }
@@ -56,7 +57,7 @@ void create_screen_dashboard() {
                     // twerd-energo-plus-label_1
                     lv_obj_t *obj = lv_img_create(parent_obj);
                     objects.twerd_energo_plus_label_1 = obj;
-                    lv_obj_set_pos(obj, 208, -20);
+                    lv_obj_set_pos(obj, 208, -19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_img_set_src(obj, &img_control_system_label);
                 }
@@ -1187,6 +1188,7 @@ void create_screen_dashboard() {
             objects.keyboard_test = obj;
             lv_obj_set_pos(obj, 0, 0);
             lv_obj_set_size(obj, 1024, 600);
+            lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_radius(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             {
