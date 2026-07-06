@@ -28,9 +28,11 @@ typedef struct _objects_t {
     lv_obj_t *control_system_label;
     lv_obj_t *obj0;
     lv_obj_t *obj1;
-    lv_obj_t *globe_ico;
     lv_obj_t *login_btn;
     lv_obj_t *obj2;
+    lv_obj_t *lang_selector_button;
+    lv_obj_t *selected_language_label;
+    lv_obj_t *dropdown_lang;
     lv_obj_t *menu_panel;
     lv_obj_t *dashboard_button;
     lv_obj_t *view_1_button;
@@ -56,7 +58,6 @@ typedef struct _objects_t {
     lv_obj_t *label_sixth_view;
     lv_obj_t *tab7;
     lv_obj_t *label_seventh_view;
-    lv_obj_t *dropdown_lang;
     lv_obj_t *login_modal;
     lv_obj_t *login_card;
     lv_obj_t *login_title_label;

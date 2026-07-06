@@ -569,6 +569,12 @@ static void pinpad_key_cb(lv_event_t *e)
  * --------------------------------------------------------------------- */
 void app_ui_init(void)
 {
+    /* Clear default group of all auto-added objects to prevent focusing invisible widgets */
+    lv_group_t *g = lv_group_get_default();
+    if (g) {
+        lv_group_remove_all_objs(g);
+    }
+
     /* Register focus-sync callbacks on all nav buttons */
     register_focus_sync(objects.dashboard_button);
     register_focus_sync(objects.view_1_button);
@@ -587,6 +593,26 @@ void app_ui_init(void)
     lv_obj_add_style(objects.load_management_button, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
     lv_obj_add_style(objects.diagnostics_button, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
     lv_obj_add_style(objects.sys_settings_button, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+
+    /* Register focus-sync and styling on the language selector button */
+    if (objects.lang_selector_button) {
+        register_focus_sync(objects.lang_selector_button);
+        lv_obj_add_style(objects.lang_selector_button, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.lang_selector_button, action_lang_selector_button_clicked, LV_EVENT_CLICKED, NULL);
+    }
+
+    /* Initialize language selector label with current dropdown value */
+    if (objects.dropdown_lang) {
+        if (objects.selected_language_label) {
+            char buf[16];
+            lv_dropdown_get_selected_str(objects.dropdown_lang, buf, sizeof(buf));
+            lv_label_set_text(objects.selected_language_label, buf);
+        }
+        
+        // Register events on the language dropdown
+        extern void dropdown_lang_event_cb(lv_event_t *e);
+        lv_obj_add_event_cb(objects.dropdown_lang, dropdown_lang_event_cb, LV_EVENT_ALL, NULL);
+    }
 
     /* Initialize User text label to Guest */
     lv_label_set_text(objects.obj2, "Guest");
@@ -634,7 +660,6 @@ void app_ui_init(void)
     }
 
     /* Add nav buttons to the default LVGL group so keyboard can navigate them */
-    lv_group_t *g = lv_group_get_default();
     if (g) {
         lv_group_add_obj(g, objects.dashboard_button);
         lv_group_add_obj(g, objects.view_1_button);
@@ -644,6 +669,9 @@ void app_ui_init(void)
         lv_group_add_obj(g, objects.diagnostics_button);
         lv_group_add_obj(g, objects.sys_settings_button);
         lv_group_add_obj(g, login_btn);
+        if (objects.lang_selector_button) {
+            lv_group_add_obj(g, objects.lang_selector_button);
+        }
 
         /* Set initial focus to Dashboard — fires LV_EVENT_FOCUSED,
          * which propagates the focused state to child labels via btn_focus_sync_cb */
@@ -670,4 +698,77 @@ bool is_pinpad_focused(void)
         if (pinpad_btns[i] && focused == pinpad_btns[i]) return true;
     }
     return false;
+}
+
+/* --------------------------------------------------------------------------
+ * Language Selector dropdown and button logic
+ * -------------------------------------------------------------------------- */
+static uint32_t last_dropdown_open_time = 0;
+
+void dropdown_lang_event_cb(lv_event_t *e)
+{
+    static bool in_event = false;
+    if (in_event) return;
+
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *dropdown = lv_event_get_target(e);
+
+    /* Consume Enter/Release event immediately after opening to prevent key bounce propagation */
+    if (lv_tick_elaps(last_dropdown_open_time) < 300) {
+        if (code == LV_EVENT_RELEASED || code == LV_EVENT_KEY) {
+            if (code == LV_EVENT_KEY) {
+                uint32_t key = lv_event_get_key(e);
+                if (key == LV_KEY_ENTER) {
+                    lv_event_stop_processing(e);
+                    return;
+                }
+            } else {
+                lv_event_stop_processing(e);
+                return;
+            }
+        }
+    }
+
+    if (code == LV_EVENT_VALUE_CHANGED) {
+        in_event = true;
+        char buf[16];
+        lv_dropdown_get_selected_str(dropdown, buf, sizeof(buf));
+        if (objects.selected_language_label) {
+            lv_label_set_text(objects.selected_language_label, buf);
+        }
+
+        /* Done selection: remove from keypad group and restore focus to selector button */
+        lv_group_remove_obj(dropdown);
+        if (objects.lang_selector_button) {
+            lv_group_focus_obj(objects.lang_selector_button);
+        }
+        in_event = false;
+    }
+    else if (code == LV_EVENT_CANCEL) {
+        in_event = true;
+        /* Cancelled/Escaped: remove from keypad group and restore focus */
+        lv_group_remove_obj(dropdown);
+        if (objects.lang_selector_button) {
+            lv_group_focus_obj(objects.lang_selector_button);
+        }
+        in_event = false;
+    }
+}
+
+void action_lang_selector_button_clicked(lv_event_t *e)
+{
+    (void)e;
+    if (objects.dropdown_lang) {
+        last_dropdown_open_time = lv_tick_get();
+
+        /* Open the dropdown list */
+        lv_dropdown_open(objects.dropdown_lang);
+
+        /* Add dropdown to the default group and focus it so user can navigate options */
+        lv_group_t *g = lv_group_get_default();
+        if (g) {
+            lv_group_add_obj(g, objects.dropdown_lang);
+            lv_group_focus_obj(objects.dropdown_lang);
+        }
+    }
 }
