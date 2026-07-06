@@ -137,6 +137,7 @@ void sdl_indev_init(void)
 }
 
 extern bool is_pinpad_focused(void);
+extern bool is_keyboard_test_active(void);
 
 static bool should_use_up_down_keys(void)
 {
@@ -149,6 +150,10 @@ static bool should_use_up_down_keys(void)
     return lv_dropdown_is_open(focused);
   }
   if (is_pinpad_focused())
+  {
+    return true;
+  }
+  if (is_keyboard_test_active())
   {
     return true;
   }

@@ -74,14 +74,18 @@ void Error_Handler(void);
 #define CTP_INT_GPIO_Port             GPIOH
 #define CTP_INT_EXTI_IRQn             EXTI3_IRQn
 
-/* Pin mappings for the physical HMI buttons */
-#define BTN_GPIO_PORT                     GPIOA
-#define BTN_UP_PIN                        GPIO_PIN_0
-#define BTN_DOWN_PIN                      GPIO_PIN_1
-#define BTN_LEFT_PIN                      GPIO_PIN_2
-#define BTN_RIGHT_PIN                     GPIO_PIN_3
-#define BTN_ENTER_PIN                     GPIO_PIN_4
-#define BTN_BACK_PIN                      GPIO_PIN_5
+/* Pin mappings for the physical HMI buttons (Matrix Keypad) */
+#define KEYPAD_ST_PORT_1                  GPIOC
+#define KEYPAD_ST_PIN_1                   GPIO_PIN_6  // PC6 -> Strobe 1 (FFC 6)
+#define KEYPAD_ST_PORT_2                  GPIOB
+#define KEYPAD_ST_PIN_2                   GPIO_PIN_0  // PB0 -> Strobe 2 (FFC 7)
+
+#define KEYPAD_COL_PORT                   GPIOA
+#define KEYPAD_COL1_PIN                   GPIO_PIN_0  // PA0 -> Col 1 (FFC 1)
+#define KEYPAD_COL2_PIN                   GPIO_PIN_1  // PA1 -> Col 2 (FFC 2)
+#define KEYPAD_COL3_PIN                   GPIO_PIN_3  // PA3 -> Col 3 (FFC 3)
+#define KEYPAD_COL4_PIN                   GPIO_PIN_4  // PA4 -> Col 4 (FFC 4)
+#define KEYPAD_COL5_PIN                   GPIO_PIN_5  // PA5 -> Col 5 (FFC 5)
 /* USER CODE END Private defines */
 
 /* Exported functions prototypes ---------------------------------------------*/

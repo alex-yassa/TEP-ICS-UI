@@ -1,0 +1,13 @@
+enum
+{
+    MAP_KEY_START_LEFT = 0,
+    MAP_KEY_START_RIGHT = 1,
+    MAP_KEY_STOP = 2,
+    MAP_KEY_UP = 3,
+    MAP_KEY_DOWN = 4,
+    MAP_KEY_LEFT = 5,
+    MAP_KEY_RIGHT = 6,
+    MAP_KEY_ENTER = 7,
+    MAP_KEY_ESCAPE = 8,
+    MAP_KEY_FUNCTION = 9
+} klawisze;
