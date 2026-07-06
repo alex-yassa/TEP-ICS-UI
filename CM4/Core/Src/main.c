@@ -119,7 +119,7 @@ int main(void) {
 
   /* initialize display and touchscreen */
   lv_port_disp_init();
-  lvgl_touchscreen_init(); //there is no touchscreen on this device !!!
+  // lvgl_touchscreen_init(); //there is no touchscreen on this device !!!
   lv_port_indev_init();
 
   /* Initialize EEZ-generated UI */

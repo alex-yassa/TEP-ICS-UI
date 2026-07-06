@@ -25,7 +25,7 @@ typedef struct _objects_t {
     lv_obj_t *splash_obj1;
     lv_obj_t *header;
     lv_obj_t *twerd_energo_plus_label;
-    lv_obj_t *twerd_energo_plus_label_1;
+    lv_obj_t *control_system_label;
     lv_obj_t *obj0;
     lv_obj_t *obj1;
     lv_obj_t *globe_ico;

@@ -49,17 +49,21 @@ void create_screen_dashboard() {
                     // twerd-energo-plus-label
                     lv_obj_t *obj = lv_img_create(parent_obj);
                     objects.twerd_energo_plus_label = obj;
-                    lv_obj_set_pos(obj, -20, -20);
+                    lv_obj_set_pos(obj, -13, -13);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_img_set_src(obj, &img_twerd_energo_plus_logo);
+                    lv_img_set_src(obj, &img_twerd_energo_plus_logo_h34);
+                    lv_obj_set_style_img_recolor_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_img_recolor(obj, lv_color_hex(0xd3d3d3), LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 {
-                    // twerd-energo-plus-label_1
+                    // control-system-label
                     lv_obj_t *obj = lv_img_create(parent_obj);
-                    objects.twerd_energo_plus_label_1 = obj;
+                    objects.control_system_label = obj;
                     lv_obj_set_pos(obj, 208, -19);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_img_set_src(obj, &img_control_system_label);
+                    lv_img_set_src(obj, &img_control_system_label_alpha);
+                    lv_obj_set_style_img_recolor(obj, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_img_recolor_opa(obj, 265, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
                 {
                     lv_obj_t *obj = lv_label_create(parent_obj);

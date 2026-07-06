@@ -27,6 +27,12 @@ def preprocess_and_patch():
         if os.path.exists(src_path):
             shutil.copy2(src_path, dest_path)
             
+    # Also sync generated images and fonts
+    for filepath in glob.glob(os.path.join(src_project_ui, "ui_image_*.c")) + glob.glob(os.path.join(src_project_ui, "ui_font_*.c")):
+        filename = os.path.basename(filepath)
+        dest_path = os.path.join(eez_output_dir, filename)
+        shutil.copy2(filepath, dest_path)
+            
     # 2. Patch images.h
     images_h_path = os.path.join(eez_output_dir, "images.h")
     if os.path.exists(images_h_path):

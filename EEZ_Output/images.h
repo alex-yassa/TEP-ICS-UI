@@ -10,6 +10,8 @@ extern "C" {
 extern const lv_img_dsc_t img_twerd_energo_plus_logo;
 extern const lv_img_dsc_t img_splash_logo;
 extern const lv_img_dsc_t img_control_system_label;
+extern const lv_img_dsc_t img_twerd_energo_plus_logo_h34;
+extern const lv_img_dsc_t img_control_system_label_alpha;
 
 #ifndef EXT_IMG_DESC_T
 #define EXT_IMG_DESC_T
