@@ -360,6 +360,24 @@
             "problemMatcher": []
         },
         {
+            "label": "Memory: Calculate Board Usage",
+            "type": "shell",
+            "command": "python3 check_memory.py",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Ensure Makefiles (Host)",
             "type": "shell",
             "command": "python3 ensure_makefiles.py",
