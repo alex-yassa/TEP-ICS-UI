@@ -5,6 +5,7 @@
 #include "styles.h"
 #include "sha256.h"
 #include "shared_memory.h"
+#include "ui_translate.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -252,25 +253,15 @@ void action_signin_clicked(lv_event_t *e)
         // Write to Shared Memory
         app_set_login_state(current_username, current_access_level);
 
-        // Update UI status label
-        char label_buf[64];
+        // Update UI status label color
         if (current_access_level == ACCESS_LEVEL_ADMIN) {
-            snprintf(label_buf, sizeof(label_buf), "%s (Admin)", current_username);
             lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0xf43f5e), 0); // rose-500
         } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
-            snprintf(label_buf, sizeof(label_buf), "%s (Oper)", current_username);
             lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x3b82f6), 0); // blue-500
         } else {
-            snprintf(label_buf, sizeof(label_buf), "%s (View)", current_username);
             lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x10b981), 0); // emerald-500
         }
-        lv_label_set_text(objects.obj0, label_buf);
-
-        // Change button label
-        lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
-        if (btn_lbl) {
-            lv_label_set_text(btn_lbl, "Logout");
-        }
+        update_login_status_translations((lang_t)g_current_language);
 
         char log_msg[64];
         snprintf(log_msg, sizeof(log_msg), "User logged in: %s", current_username);
@@ -443,13 +434,8 @@ void action_login_button_clicked(lv_event_t *e)
         app_set_login_state(current_username, current_access_level);
 
         // Update UI
-        lv_label_set_text(objects.obj0, "Guest");
         lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x94a3b8), 0);
-
-        lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
-        if (btn_lbl) {
-            lv_label_set_text(btn_lbl, "Login");
-        }
+        update_login_status_translations((lang_t)g_current_language);
 
         app_log_event("User logged out");
     } else {
@@ -603,6 +589,8 @@ void app_ui_init(void)
 
     /* Initialize language selector label with current dropdown value */
     if (objects.dropdown_lang) {
+        g_current_language = lv_dropdown_get_selected(objects.dropdown_lang);
+
         if (objects.selected_language_label) {
             char buf[16];
             lv_dropdown_get_selected_str(objects.dropdown_lang, buf, sizeof(buf));
@@ -614,8 +602,8 @@ void app_ui_init(void)
         lv_obj_add_event_cb(objects.dropdown_lang, dropdown_lang_event_cb, LV_EVENT_ALL, NULL);
     }
 
-    /* Initialize User text label to Guest */
-    lv_label_set_text(objects.obj0, "Guest");
+    /* Translate UI to default language */
+    ui_translate_update();
 
     /* Create login button dynamically in the header if not designed in EEZ Studio */
     if (objects.login_btn == NULL) {
@@ -639,6 +627,8 @@ void app_ui_init(void)
         lv_obj_add_style(login_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
     } else {
         login_btn = objects.login_btn;
+        register_focus_sync(login_btn);
+        lv_obj_add_style(login_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
     }
 
     if (objects.login_password_ta) {
@@ -700,6 +690,43 @@ bool is_pinpad_focused(void)
     return false;
 }
 
+void update_login_status_translations(lang_t lang) {
+    char label_buf[64];
+    if (current_access_level == ACCESS_LEVEL_ADMIN) {
+        snprintf(label_buf, sizeof(label_buf), translate("%s (Admin)", lang), current_username);
+    } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
+        snprintf(label_buf, sizeof(label_buf), translate("%s (Oper)", lang), current_username);
+    } else if (current_access_level == ACCESS_LEVEL_GUEST && strcmp(current_username, "Guest") != 0) {
+        snprintf(label_buf, sizeof(label_buf), translate("%s (View)", lang), current_username);
+    } else {
+        snprintf(label_buf, sizeof(label_buf), "%s", translate("Guest", lang));
+    }
+    if (objects.login_btn == NULL) {
+        // Dynamic fallback button: single text label at child index 0
+        if (login_btn) {
+            lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
+            if (btn_lbl) {
+                if (strcmp(current_username, "Guest") == 0) {
+                    lv_label_set_text(btn_lbl, translate("Login", lang));
+                } else {
+                    lv_label_set_text(btn_lbl, translate("Logout", lang));
+                }
+            }
+        }
+    } else {
+        // EEZ-designed button: child 0 is icon "1", child 1 (objects.obj0) is username/role
+        if (objects.login_btn) {
+            lv_obj_t *icon_lbl = lv_obj_get_child(objects.login_btn, 0);
+            if (icon_lbl) {
+                lv_label_set_text(icon_lbl, "1");
+            }
+        }
+        if (objects.obj0) {
+            lv_label_set_text(objects.obj0, label_buf);
+        }
+    }
+}
+
 /* --------------------------------------------------------------------------
  * Language Selector dropdown and button logic
  * -------------------------------------------------------------------------- */
@@ -731,11 +758,15 @@ void dropdown_lang_event_cb(lv_event_t *e)
 
     if (code == LV_EVENT_VALUE_CHANGED) {
         in_event = true;
+        g_current_language = lv_dropdown_get_selected(dropdown);
+
         char buf[16];
         lv_dropdown_get_selected_str(dropdown, buf, sizeof(buf));
         if (objects.selected_language_label) {
             lv_label_set_text(objects.selected_language_label, buf);
         }
+
+        ui_translate_update();
 
         /* Done selection: remove from keypad group and restore focus to selector button */
         lv_group_remove_obj(dropdown);

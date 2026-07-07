@@ -29,7 +29,6 @@ typedef struct _objects_t {
     lv_obj_t *date_label;
     lv_obj_t *time_label;
     lv_obj_t *login_btn;
-    lv_obj_t *obj0;
     lv_obj_t *lang_selector_button;
     lv_obj_t *selected_language_label;
     lv_obj_t *dropdown_lang;
@@ -82,7 +81,7 @@ typedef struct _objects_t {
     lv_obj_t *pinpad_btn_back;
     lv_obj_t *pinpad_btn_cancel;
     lv_obj_t *pinpad_btn_ok;
-    lv_obj_t *obj1;
+    lv_obj_t *obj0;
     lv_obj_t *pinpad_btn_dummy;
     lv_obj_t *keyboard_test;
     lv_obj_t *btn_left;

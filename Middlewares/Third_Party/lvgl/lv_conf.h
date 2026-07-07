@@ -67,8 +67,8 @@
 /* Active Fonts configuration */
 #define LV_FONT_MONTSERRAT_10   1
 #define LV_FONT_MONTSERRAT_12   1
-#define LV_FONT_MONTSERRAT_14   1
-#define LV_FONT_MONTSERRAT_16   1
+#define LV_FONT_MONTSERRAT_14   0
+#define LV_FONT_MONTSERRAT_16   0
 #define LV_FONT_MONTSERRAT_18   1
 #define LV_FONT_MONTSERRAT_24   1
 #define LV_FONT_MONTSERRAT_32   1
@@ -87,5 +87,9 @@
 
 /* Compatibility font macros for EEZ Studio */
 #define lv_font_montserrat_46 lv_font_montserrat_48
+
+struct _lv_font_t;
+extern const struct _lv_font_t lv_font_montserrat_14;
+extern const struct _lv_font_t lv_font_montserrat_16;
 
 #endif /* LV_CONF_H */

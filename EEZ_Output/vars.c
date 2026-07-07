@@ -1,17 +1,21 @@
 #include "vars.h"
+#include "ui_translate.h"
 #include <time.h>
 #include <stdio.h>
 
 #ifndef PC_SIMULATOR
 #include "main.h"
 #include "shared_memory.h"
-
-static const char *months[] = {
-    "???",
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-};
 #endif
+
+static const char *months_translated[LANG_COUNT][13] = {
+    // PL
+    { "???", "Sty", "Lut", "Mar", "Kwi", "Maj", "Cze", "Lip", "Sie", "Wrz", "Paź", "Lis", "Gru" },
+    // EN
+    { "???", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" },
+    // UA
+    { "???", "Січ", "Лют", "Бер", "Кві", "Тра", "Чер", "Лип", "Сер", "Вер", "Жов", "Лис", "Гру" }
+};
 
 static char date_buf[32] = "Jun. 08.2026";
 static char time_buf[32] = "10:20:55";
@@ -21,7 +25,7 @@ const char *get_var_header_date() {
     if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK) {
         volatile SharedBuffer_t *shared = SHARED_BUFFER;
         uint8_t month = shared->rtc_month;
-        const char *month_str = (month >= 1 && month <= 12) ? months[month] : "???";
+        const char *month_str = (month >= 1 && month <= 12) ? months_translated[g_current_language][month] : "???";
         snprintf(date_buf, sizeof(date_buf), "%s. %02u.%u", month_str, shared->rtc_day, shared->rtc_year);
         HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
     }
@@ -31,7 +35,9 @@ const char *get_var_header_date() {
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     if (timeinfo) {
-        strftime(date_buf, sizeof(date_buf), "%b. %d.%Y", timeinfo);
+        int month = timeinfo->tm_mon + 1; // tm_mon is 0-11
+        const char *month_str = (month >= 1 && month <= 12) ? months_translated[g_current_language][month] : "???";
+        snprintf(date_buf, sizeof(date_buf), "%s. %02d.%d", month_str, timeinfo->tm_mday, timeinfo->tm_year + 1900);
     }
 #endif
     return date_buf;
@@ -54,7 +60,7 @@ const char *get_var_header_time() {
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     if (timeinfo) {
-        strftime(time_buf, sizeof(time_buf), "%H:%M:%S", timeinfo);
+        snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
     }
 #endif
     return time_buf;

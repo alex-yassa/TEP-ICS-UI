@@ -388,15 +388,7 @@
                   "disabledStateType": "literal",
                   "states": "",
                   "localStyles": {
-                    "objID": "f9f95a5e-4315-4998-a055-c66891894bbb",
-                    "definition": {
-                      "MAIN": {
-                        "DEFAULT": {
-                          "img_recolor": "#FFFFFF",
-                          "img_recolor_opa": 255
-                        }
-                      }
-                    }
+                    "objID": "f9f95a5e-4315-4998-a055-c66891894bbb"
                   },
                   "group": "",
                   "groupIndex": 0,
@@ -596,6 +588,7 @@
                       },
                       "timeline": [],
                       "eventHandlers": [],
+                      "identifier": "",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "content",
@@ -607,14 +600,12 @@
                       "checkedStateType": "literal",
                       "disabledStateType": "literal",
                       "states": "",
+                      "useStyle": "btn-label",
                       "localStyles": {
                         "objID": "90deaa11-681b-4b8a-ad72-53bd1e18b7c6",
                         "definition": {
                           "MAIN": {
                             "DEFAULT": {
-                              "text_color": "#FFFFFF",
-                              "text_font": "MONTSERRAT_14",
-                              "text_align": "CENTER",
                               "pad_left": 5
                             }
                           }
@@ -5762,15 +5753,7 @@
           "disabledStateType": "literal",
           "states": "",
           "localStyles": {
-            "objID": "4f2af38d-3b2e-4610-abf7-038b2b6c1bf5",
-            "definition": {
-              "MAIN": {
-                "DEFAULT": {
-                  "bg_color": "#0B0E14",
-                  "bg_opa": 255
-                }
-              }
-            }
+            "objID": "4f2af38d-3b2e-4610-abf7-038b2b6c1bf5"
           },
           "groupIndex": 0
         }
