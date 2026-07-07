@@ -256,15 +256,15 @@ void action_signin_clicked(lv_event_t *e)
         char label_buf[64];
         if (current_access_level == ACCESS_LEVEL_ADMIN) {
             snprintf(label_buf, sizeof(label_buf), "%s (Admin)", current_username);
-            lv_obj_set_style_text_color(objects.obj2, lv_color_hex(0xf43f5e), 0); // rose-500
+            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0xf43f5e), 0); // rose-500
         } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
             snprintf(label_buf, sizeof(label_buf), "%s (Oper)", current_username);
-            lv_obj_set_style_text_color(objects.obj2, lv_color_hex(0x3b82f6), 0); // blue-500
+            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x3b82f6), 0); // blue-500
         } else {
             snprintf(label_buf, sizeof(label_buf), "%s (View)", current_username);
-            lv_obj_set_style_text_color(objects.obj2, lv_color_hex(0x10b981), 0); // emerald-500
+            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x10b981), 0); // emerald-500
         }
-        lv_label_set_text(objects.obj2, label_buf);
+        lv_label_set_text(objects.obj0, label_buf);
 
         // Change button label
         lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
@@ -443,8 +443,8 @@ void action_login_button_clicked(lv_event_t *e)
         app_set_login_state(current_username, current_access_level);
 
         // Update UI
-        lv_label_set_text(objects.obj2, "Guest");
-        lv_obj_set_style_text_color(objects.obj2, lv_color_hex(0x94a3b8), 0);
+        lv_label_set_text(objects.obj0, "Guest");
+        lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x94a3b8), 0);
 
         lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
         if (btn_lbl) {
@@ -615,7 +615,7 @@ void app_ui_init(void)
     }
 
     /* Initialize User text label to Guest */
-    lv_label_set_text(objects.obj2, "Guest");
+    lv_label_set_text(objects.obj0, "Guest");
 
     /* Create login button dynamically in the header if not designed in EEZ Studio */
     if (objects.login_btn == NULL) {

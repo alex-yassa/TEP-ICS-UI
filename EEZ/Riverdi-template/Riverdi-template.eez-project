@@ -393,7 +393,7 @@
                       "MAIN": {
                         "DEFAULT": {
                           "img_recolor": "#FFFFFF",
-                          "img_recolor_opa": 265
+                          "img_recolor_opa": 255
                         }
                       }
                     }
@@ -415,7 +415,7 @@
                 {
                   "objID": "c0f78f8b-6a25-4918-860a-49fcc2b2e120",
                   "type": "LVGLLabelWidget",
-                  "left": 492,
+                  "left": 474,
                   "top": -5,
                   "width": 117,
                   "height": 21,
@@ -429,6 +429,7 @@
                   },
                   "timeline": [],
                   "eventHandlers": [],
+                  "identifier": "date_label",
                   "leftUnit": "px",
                   "topUnit": "px",
                   "widthUnit": "px",
@@ -460,7 +461,7 @@
                 {
                   "objID": "c555cba6-2221-48f9-b55f-ec730b189622",
                   "type": "LVGLLabelWidget",
-                  "left": 629,
+                  "left": 597,
                   "top": -5,
                   "width": 82,
                   "height": 20,
@@ -474,6 +475,7 @@
                   },
                   "timeline": [],
                   "eventHandlers": [],
+                  "identifier": "time_label",
                   "leftUnit": "px",
                   "topUnit": "px",
                   "widthUnit": "px",
@@ -505,7 +507,7 @@
                 {
                   "objID": "aa278434-3ebc-44b8-b5cc-34a725adcac0",
                   "type": "LVGLButtonWidget",
-                  "left": 792,
+                  "left": 687,
                   "top": -11,
                   "width": 100,
                   "height": 30,
@@ -652,9 +654,9 @@
                 {
                   "objID": "ed2d5c16-daa8-424f-b444-ba46fd2f12bd",
                   "type": "LVGLButtonWidget",
-                  "left": 896,
+                  "left": 928,
                   "top": -13,
-                  "width": 95,
+                  "width": 56,
                   "height": 34,
                   "customInputs": [],
                   "customOutputs": [],
@@ -720,7 +722,7 @@
                       "type": "LVGLLabelWidget",
                       "left": 0,
                       "top": 0,
-                      "width": 57,
+                      "width": 25,
                       "height": 16,
                       "customInputs": [],
                       "customOutputs": [],
@@ -761,7 +763,7 @@
                       },
                       "group": "",
                       "groupIndex": 0,
-                      "text": "Button",
+                      "text": "EN",
                       "textType": "literal",
                       "longMode": "WRAP",
                       "recolor": false
@@ -823,7 +825,7 @@
             {
               "objID": "b47fb99c-f76e-492b-a932-28ace9983e61",
               "type": "LVGLDropdownWidget",
-              "left": 910,
+              "left": 950,
               "top": 46,
               "width": 0,
               "height": 0,
