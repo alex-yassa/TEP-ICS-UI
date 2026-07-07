@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="diag_riverdi" name="Riverdi Keyboard Wiring">
-        <mxGraphModel dx="910" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#000000" math="0" shadow="0">
+        <mxGraphModel dx="1092" dy="578" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#000000" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -83,7 +83,7 @@
                     <mxGeometry x="700" y="222" width="420" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="ffc_body" value="KEYPAD TAIL&#10;FFC Connector&#10;(7 Pins)" style="rounded=1;whiteSpace=wrap;fillColor=#161B22;strokeColor=#3081D0;strokeWidth=2;fontColor=#FFFFFF;align=center;fontStyle=1;verticalAlign=top;spacingTop=10;" parent="1" vertex="1">
-                    <mxGeometry x="100" y="200" width="110" height="270" as="geometry"/>
+                    <mxGeometry x="100" y="160" width="110" height="320" as="geometry"/>
                 </mxCell>
                 <mxCell id="pin1" value="P1 (Yellow)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#F2D35C;strokeWidth=1.5;fontColor=#F2D35C;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="160" y="240" width="75" height="22" as="geometry"/>
@@ -107,7 +107,7 @@
                     <mxGeometry x="160" y="420" width="75" height="22" as="geometry"/>
                 </mxCell>
                 <mxCell id="riverdi_body" value="RIVERDI BOARD&#10;Expansion Connector&#10;(P8 Header)" style="rounded=1;whiteSpace=wrap;fillColor=#161B22;strokeColor=#3081D0;strokeWidth=2;fontColor=#FFFFFF;align=center;fontStyle=1;verticalAlign=top;spacingTop=10;" parent="1" vertex="1">
-                    <mxGeometry x="480" y="170" width="140" height="310" as="geometry"/>
+                    <mxGeometry x="480" y="160" width="140" height="320" as="geometry"/>
                 </mxCell>
                 <mxCell id="mcu_pa0" value="Pin 20 (PA0)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#F2D35C;strokeWidth=1.5;fontColor=#F2D35C;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="240" width="85" height="22" as="geometry"/>
@@ -121,13 +121,13 @@
                 <mxCell id="mcu_pa4" value="Pin 8 (PA4)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#8D6E63;strokeWidth=1.5;fontColor=#8D6E63;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="330" width="85" height="22" as="geometry"/>
                 </mxCell>
-                <mxCell id="mcu_pa5" value="Pin 5 (PA5)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#555555;strokeWidth=1.5;fontColor=#555555;align=center;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+                <mxCell id="mcu_pa5" value="Pin 5 (PA5)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#555555;strokeWidth=1.5;fontColor=#555555;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="360" width="85" height="22" as="geometry"/>
                 </mxCell>
-                <mxCell id="mcu_pc6" value="Pin 37 (PC6)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#FFFFFF;strokeWidth=1.5;fontColor=#FFFFFF;align=center;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+                <mxCell id="mcu_pc6" value="Pin 37 (PC6)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#FFFFFF;strokeWidth=1.5;fontColor=#FFFFFF;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="390" width="85" height="22" as="geometry"/>
                 </mxCell>
-                <mxCell id="mcu_pb0" value="Pin 35 (PB0)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#B0BEC5;strokeWidth=1.5;fontColor=#B0BEC5;align=center;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+                <mxCell id="mcu_pb0" value="Pin 35 (PB0)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#B0BEC5;strokeWidth=1.5;fontColor=#B0BEC5;align=center;fontSize=10;fontStyle=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="420" width="85" height="22" as="geometry"/>
                 </mxCell>
                 <mxCell id="mcu_gnd" value="GND (e.g. Pin 6)" style="rounded=1;whiteSpace=wrap;fillColor=#21262D;strokeColor=#8B949E;fontColor=#8B949E;align=center;fontSize=10;" parent="1" vertex="1">
@@ -139,19 +139,19 @@
                 <mxCell id="w_col2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#F2A154;endArrow=none;startArrow=none;" parent="1" source="pin2" target="mcu_pa1" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="w_col3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#E74C3C;endArrow=none;startArrow=none;" edge="1" parent="1" source="pin3" target="mcu_pa3">
+                <mxCell id="w_col3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#E74C3C;endArrow=none;startArrow=none;" parent="1" source="pin3" target="mcu_pa3" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="w_col4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#8D6E63;endArrow=none;startArrow=none;" edge="1" parent="1" source="pin4" target="mcu_pa4">
+                <mxCell id="w_col4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#8D6E63;endArrow=none;startArrow=none;" parent="1" source="pin4" target="mcu_pa4" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="w_col5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#555555;endArrow=none;startArrow=none;" edge="1" parent="1" source="pin5" target="mcu_pa5">
+                <mxCell id="w_col5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#555555;endArrow=none;startArrow=none;" parent="1" source="pin5" target="mcu_pa5" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="w_st1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#FFFFFF;endArrow=none;startArrow=none;" edge="1" parent="1" source="pin6" target="mcu_pc6">
+                <mxCell id="w_st1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#FFFFFF;endArrow=none;startArrow=none;" parent="1" source="pin6" target="mcu_pc6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="w_st2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#B0BEC5;endArrow=none;startArrow=none;" edge="1" parent="1" source="pin7" target="mcu_pb0">
+                <mxCell id="w_st2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeWidth=2.5;strokeColor=#B0BEC5;endArrow=none;startArrow=none;" parent="1" source="pin7" target="mcu_pb0" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>

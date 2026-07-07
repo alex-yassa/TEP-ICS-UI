@@ -30,7 +30,7 @@ graph LR
 
 ### Step 2 — Generate Code
 
-Press **`Ctrl+Shift+G`** in EEZ Studio.
+Press **`Ctrl+B`** or **`File -> Build`** in EEZ Studio.
 
 EEZ writes all `.c` / `.h` sources directly into `CM4/Core/Src/eez_ui`. The files are immediately ready for both the simulator and the ARM build — no extra porting step required.
 
