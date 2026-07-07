@@ -170,6 +170,10 @@ void StartDefaultTask(void const * argument)
         shared->rtc_day = sDate.Date;
         shared->rtc_month = sDate.Month;
         shared->rtc_year = 2000 + sDate.Year;
+        
+        // Flush M7 D-Cache for SRAM3 shared memory to be visible to CM4
+        SCB_CleanDCache_by_Addr((uint32_t *)shared, sizeof(SharedBuffer_t));
+        
         HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
       }
     }

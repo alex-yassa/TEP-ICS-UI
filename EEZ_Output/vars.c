@@ -2,16 +2,29 @@
 #include <time.h>
 #include <stdio.h>
 
-#ifdef STM32H757xx
+#ifndef PC_SIMULATOR
 #include "main.h"
+#include "shared_memory.h"
+
+static const char *months[] = {
+    "???",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
 #endif
 
 static char date_buf[32] = "Jun. 08.2026";
 static char time_buf[32] = "10:20:55";
 
 const char *get_var_header_date() {
-#ifdef STM32H757xx
-    snprintf(date_buf, sizeof(date_buf), "Jun. 12.2026");
+#ifndef PC_SIMULATOR
+    if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK) {
+        volatile SharedBuffer_t *shared = SHARED_BUFFER;
+        uint8_t month = shared->rtc_month;
+        const char *month_str = (month >= 1 && month <= 12) ? months[month] : "???";
+        snprintf(date_buf, sizeof(date_buf), "%s. %02u.%u", month_str, shared->rtc_day, shared->rtc_year);
+        HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
+    }
 #else
     time_t rawtime;
     struct tm *timeinfo;
@@ -29,13 +42,12 @@ void set_var_header_date(const char *value) {
 }
 
 const char *get_var_header_time() {
-#ifdef STM32H757xx
-    uint32_t ticks = HAL_GetTick();
-    uint32_t total_seconds = 14 * 3600 + 34 * 60 + 47 + (ticks / 1000);
-    uint32_t seconds = total_seconds % 60;
-    uint32_t minutes = (total_seconds / 60) % 60;
-    uint32_t hours = (total_seconds / 3600) % 24;
-    snprintf(time_buf, sizeof(time_buf), "%02u:%02u:%02u", (unsigned int)hours, (unsigned int)minutes, (unsigned int)seconds);
+#ifndef PC_SIMULATOR
+    if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK) {
+        volatile SharedBuffer_t *shared = SHARED_BUFFER;
+        snprintf(time_buf, sizeof(time_buf), "%02u:%02u:%02u", shared->rtc_hours, shared->rtc_minutes, shared->rtc_seconds);
+        HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
+    }
 #else
     time_t rawtime;
     struct tm *timeinfo;
