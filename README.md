@@ -1,190 +1,165 @@
-# Riverdi STM32H7 7.0” Dual-Core LVGL & EEZ HMI Template
+# Central Energy Management System (EMS) HMI Firmware Project
 
-This repository is a premium, fully-decoupled **Dual-Core HMI template project** for the **Riverdi STM32 Embedded 7.0” Displays** (powered by the dual-core **STM32H757XIH6** MCU).
+This repository houses the firmware and visual HMI design for the **Central Energy Management System (EMS)**, designed for the **Riverdi 7.0” STM32 Embedded Display** (powered by the dual-core **STM32H757XIH6** MCU, asymmetric Cortex-M7 + Cortex-M4 architecture).
 
-It decouples HMI rendering from main system tasks:
-- **Cortex-M7 (480 MHz)**: Reserved exclusively for calculations, RTOS scheduler, communications, and background control loops.
-- **Cortex-M4 (240 MHz)**: Dedicated entirely to visual rendering (LVGL graphics engine and DMA2D Chrom-ART acceleration).
+It is a fully decoupled **Dual-Core HMI template project** utilizing:
+- **Cortex-M7 (480 MHz Master)**: Executes real-time calculations, FreeRTOS tasks, Modbus TCP/RTU communications, and background microgrid control loops.
+- **Cortex-M4 (240 MHz Slave)**: Runs the dedicated HMI graphics engine using **LVGL v8**, hardware-accelerated **DMA2D (Chrom-ART)** upscaling, and user interaction logic.
 
 ---
 
-## 🏗️ Dual-Core Decoupled Architecture
+## 🏗️ Dual-Core Decoupled HMI Architecture
 
-The template isolates visual cycles to guarantee deterministic performance for time-critical calculations and communications on the Cortex-M7:
+To guarantee deterministic timing for critical grid calculations and Modbus control loops, HMI rendering is completely offloaded to the Cortex-M4 core. 
 
 ```mermaid
 graph TD
-    subgraph Cortex-M7 [Cortex-M7 Core - 480 MHz]
-        A[Boot & System Init] --> B[FMC SDRAM & LTDC Init]
-        B --> C[Release CM4 Core]
+    subgraph CM7 [Cortex-M7 Core - Master - 480 MHz]
+        A[Boot & Hardware Init] --> B[FMC SDRAM & LTDC Init]
+        B --> C[Release Cortex-M4 Core]
         C --> D[FreeRTOS Task Scheduler]
-        D --> E[Math / Comms / Control Loop]
+        D --> E[EMS Math / Modbus Loops / Control]
     end
     
-    subgraph Cortex-M4 [Cortex-M4 Core - 240 MHz]
-        F[Wait for Release HSEM] --> G[Boot]
-        G --> H[DMA2D Init]
-        H --> I[LVGL Graphics Stack]
-        I --> J[User Interface Loop]
+    subgraph CM4 [Cortex-M4 Core - Slave - 240 MHz]
+        F[Wait for release HSEM] --> G[Boot CM4]
+        G --> H[DMA2D Hardware Acceleration Init]
+        H --> I[LVGL Graphics Engine & UI Stack]
+        I --> J[HMI Event & Navigation Loop]
     end
 
-    E <--> |SRAM3 Shared Memory + HSEM| J
+    E <--> |SRAM3 IPC Shared Buffer + HSEM| J
 ```
 
-### Cortex-M7 (CM7) — Calculations & Communications
-The CM7 acts as the master processor. Its primary duties include:
-- Configuring system clocks and power domains.
-- Initializing external hardware peripherals like **FMC (SDRAM)** and **LTDC (LCD controller)**.
-- Synchronizing the boot sequence: CM7 keeps CM4 in deep sleep, initializes external SDRAM, and then releases CM4 to prevent bus contentions.
-- Hosting **FreeRTOS** to handle real-time calculation loops, sensor telemetry, and industrial communication protocols (Modbus, FDCAN, SPI, USART).
+### 1. Master Core: Cortex-M7 (CM7)
+- Controls the system boot sequence, power domains, and clocks.
+- Configures and opens access to external hardware memory resources including the **FMC SDRAM Controller** and **LTDC Display Controller**.
+- Coordinates synchronization: Keeps the CM4 core in deep sleep until the external SDRAM interface is fully initialized, preventing memory bus contentions.
+- Runs **FreeRTOS** tasks for zero-export control loops, frequency shifting curves, Modbus RTU/TCP polling of inverters, meters, and static transfer switches (STS).
 
-### Cortex-M4 (CM4) — Dedicated HMI Graphics
-The CM4 acts as a slave processor dedicated entirely to the user interface:
-- Booting up after receiving the wake-up signal from CM7.
-- Initializing the **DMA2D (Chrom-ART)** graphics accelerator.
-- Initializing the **LVGL** graphical library, drawing a dark blue background with the centered label `"TWERD ENERGO-PLUS"`.
-- Running the UI refresh loop.
+### 2. Slave Core: Cortex-M4 (CM4)
+- Boots up when released by the CM7 after SDRAM is operational.
+- Configures **DMA2D (Chrom-ART)** for high-speed hardware-accelerated color upscaling, canvas flushing, and blitting.
+- Runs the **LVGL v8** graphical framework, rendering the HMI screens and managing matrix keypad input navigation.
 
-### Inter-Processor Communication (IPC)
-* **Shared SRAM3 Memory (`0x30040000`)**: Memory block visible to both cores used to exchange telemetry (M7 $\rightarrow$ M4). Defined in [Common/shared_memory.h](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/Common/shared_memory.h).
-* **Hardware Semaphores (`HSEM`)**: Prevent read-write race conditions when both cores access the shared buffer (`HSEM_ID_SHARED_MEM` / Semaphore ID 1).
+### 3. Inter-Processor Communication (IPC)
+- **Shared SRAM3 (`0x30040000`)**: Telemetry parameters (read-only on CM4) and configuration settings (read-write on CM4) are synchronized via a shared memory structure defined in [Common/shared_memory.h](Common/shared_memory.h).
+- **Hardware Semaphores (`HSEM`)**: Prevent concurrency issues when both cores access the shared buffer (`HSEM_ID_SHARED_MEM` / Semaphore ID 1).
 
 ---
 
-## ⚙️ Hardware Specifications
+## ⚙️ Display & UI Specifications
+
+The screen is a non-touch model operated via **six physical navigation buttons** (UP, DOWN, LEFT, RIGHT, ENTER, BACK). High-contrast focus outlines and structured key event handlers are mapped to support fully remote non-touch operation.
 
 | Component | Specification | Details |
 |---|---|---|
-| **MCU** | STM32H757XIH6 | Asymmetric dual-core: Cortex-M7 (480MHz) + Cortex-M4 (240MHz) |
-| **RAM** | 9 MB | 1 MB internal SRAM + 8 MB external SDRAM (32-bit bus width) |
-| **Flash** | 66 MB | 2 MB internal + 64 MB external QSPI flash |
-| **Graphics Accelerator** | Chrom-ART (DMA2D) | Used by CM4 for high-speed hardware-accelerated GUI blitting |
-| **Display Panel** | 7.0" IPS TFT LCD | Resolution: **1024x600**, 170 DPI, 24-bit color depth |
-| **Touch Pad** | None | This template is configured for non-touch display models |
-| **Interfaces** | Industrial standard | 2x CAN FD, RS485, RS232, USB, expansion headers |
-
-### Supported Displays & Purchase Links
-This template is configured for the **non-touch panel display models**:
-* [RVT70HSSFWN00](https://riverdi.com/product/7-inch-lcd-display-stm32h7-frame-rvt70hssfwn00/) — *Non-touch panel with Frame*
-* [RVT70HSSNWN00](https://riverdi.com/product/7-inch-lcd-display-stm32h7-rvt70hssnwn00/) — *Non-touch panel*
-
-*(For reference, the touch model counterparts are the RVT70HSSNWC00-B, RVT70HSSNWC00, RVT70HSSFWCA0, and RVT70HSSNWCA0, but the touchscreen driver is disabled in this project configuration).*
+| **MCU** | STM32H757XIH6 | Dual-core: Cortex-M7 (480MHz) + Cortex-M4 (240MHz) |
+| **RAM** | 9 MB | 1 MB internal SRAM + 8 MB external SDRAM (32-bit width) |
+| **Display Panel** | 7.0" IPS TFT LCD | Resolution: **1024x600**, 170 DPI, 24-bit RGB888 |
+| **LVGL Buffer** | 16-bit RGB565 | Drawn by CM4 into internal SRAM and upscaled by DMA2D to ARGB8888 |
+| **Touch Pad** | None | Touch driver is disabled; optimized for physical buttons |
+| **Target Panels** | Riverdi Non-touch | Models: `RVT70HSSFWN00` / `RVT70HSSNWN00` |
 
 ---
 
-## 🛠️ Integrated HMI Pipeline
+## 🛠️ Main Features Implemented
 
-The development pipeline supports visual UI drafting inside **EEZ Studio** and compiling/flashing without needing a local STM32CubeIDE installation:
+### 1. Dynamic Translation Engine (i18n)
+- Declared in [EEZ_Output/ui_translate.h](EEZ_Output/ui_translate.h) and defined in [EEZ_Output/ui_translate.c](EEZ_Output/ui_translate.c).
+- Supports runtime language switching between **Polish (PL)**, **English (EN)**, and **Ukrainian (UA)**.
+- Localizes all sidebar menus, tab view titles, and modal prompts dynamically on the fly with a ROM-based lookup map (zero-RAM footprint).
+- Automatically translates calendar date abbreviations and weekday strings mapped from shared RTC variables.
+- Dynamically translates active login roles in the top header bar (e.g. `Guest` -> `Gość` / `Гість`).
+
+### 2. Custom Multi-Language Fonts (Cyrillic + Polish)
+- Overridden standard Montserrat fonts to support Unicode Latin Extended-A and Cyrillic character ranges (`0x0100-0x017F` and `0x0400-0x04FF`).
+- Fonts were converted with `--no-compress` to output raw bitmap arrays, resolving rendering issues when combined with standard styles.
+- Built-in fonts are deactivated in [Middlewares/Third_Party/lvgl/lv_conf.h](Middlewares/Third_Party/lvgl/lv_conf.h) and remapped to the custom font descriptors:
+  - `EEZ_Output/ui_font_montserrat_14.c` (~239KB)
+  - `EEZ_Output/ui_font_montserrat_16.c` (~280KB)
+
+### 3. Focus & Recolor Styling Corrections
+- Disabled recoloring transparency filters (`recolor_opa = 0`) on the Central EMS label image widget (`control-system-label-alpha`) in [EEZ/Riverdi-template/src/ui/screens.c](EEZ/Riverdi-template/src/ui/screens.c) and [EEZ_Output/screens.c](EEZ_Output/screens.c) to restore its native steel-blue/gray palette gradient.
+- Remapped the key focus states on `objects.login_btn` to match the sidebar menu navigation buttons, ensuring uniform border highlighting when navigating via the keypad.
+- Corrected the login button child mapping so that text state updates don't overwrite the icon label (which must remain as `"1"`).
+
+---
+
+## 🚀 Integrated Build & Flashing Pipeline
 
 ```mermaid
 graph LR
-    A[Design in EEZ Studio] -->|Generate Code| B[CM4/Core/Src/eez_ui]
-    B -->|Simulator: Build+Run| C[PC Simulator ✅ Fast]
-    B -->|Docker: Build| D[Compile Firmware]
-    D -->|ST-Link CLI| E[Flash STM32H7 Board]
+    A[Design in EEZ Studio] -->|Generate Code| B[EEZ_Output]
+    B -->|port_eez_ui.py| C[CM4 Target Src]
+    C -->|Sim: CMake Build| D[PC Simulator ✅ SDL2]
+    C -->|Firmware Build| E[CM4 Binary .elf]
 ```
 
-### 1 — Design & Generate Code (EEZ Studio)
-1. Open the project HMI visual file: [EEZ/Riverdi-template/Riverdi-template.eez-project](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/EEZ/Riverdi-template/Riverdi-template.eez-project).
-2. Make your UI adjustments (widgets, variables, events).
-3. Generate the output files (`Ctrl+Shift+G`). With the project configured to output directly to `CM4/Core/Src/eez_ui`, files are ready immediately.
+### 1. Generating UI from EEZ Studio
+1. Open the project visual HMI file: [EEZ/Riverdi-template/Riverdi-template.eez-project](EEZ/Riverdi-template/Riverdi-template.eez-project).
+2. Design widgets, layouts, and variables inside EEZ Studio.
+3. Export the code into `EEZ_Output`.
+4. Run the sync script to format, patch, and copy files to the CM4 firmware source tree:
+   ```bash
+   python3 port_eez_ui.py
+   ```
 
-### 2 — Test on the PC Simulator (Recommended first step)
-Before flashing hardware, iterate visually on the Linux host using the built-in SDL2 simulator:
+### 2. Building and Running the PC Simulator
+You can iterate on HMI layout changes on a Linux host using the SDL2 simulator:
 ```bash
-# Prerequisites (one-time)
-sudo apt-get install libsdl2-dev
-
-# Build simulator inside the Docker container
-export UID GID=$(id -g)
+# Compile the SDL2 Simulator executable inside Docker builder
 docker compose run --rm builder bash -c \
     'cmake -B pc_simulator/build -S pc_simulator && make -C pc_simulator/build -j$(nproc)'
 
-# Run natively on the host
+# Run the simulator natively on the host display
 ./pc_simulator/build/lvgl_simulator
 ```
-The simulator opens a pixel-perfect **1024×600** window of the LVGL UI. Navigate with Arrow keys, Enter, and Escape.
 
-### 3 — Build inside Docker Container
-The toolchain is containerized so that no local compiler installation is needed:
+### 3. Compiling the STM32H7 Firmware
+Both core binaries are compiled inside the Docker builder container:
 ```bash
-# Build both CM4 and CM7 cores
-docker compose run --rm builder make all
-
-# Clean build artifacts
+# Clean previous build artifacts
 docker compose run --rm builder make clean
+
+# Compile CM4 HMI Firmware
+docker compose run --rm builder make cm4
+
+# Compile CM7 System Firmware
+docker compose run --rm builder make cm7
+
+# Compile both cores simultaneously
+docker compose run --rm builder make all
 ```
 
-### 4 — Flash the Board
-Ensure your debug probe (ST-LINK or J-Link) is connected to the board's **SWD** header and flash the firmware:
+### 4. Flashing the Dual-Core Board
+Connect your debug probe (ST-LINK) to the display board and flash the binaries using `STM32_Programmer_CLI`:
 ```bash
-# Flash CM7 firmware (Flash Bank 1)
+# Flash Cortex-M7 Core (Flash Bank 1)
 STM32_Programmer_CLI -c port=SWD -w STM32CubeIDE/CM7/Release/riverdi-70-stm32h7-lvgl_CM7.elf -rst
 
-# Flash CM4 firmware (Flash Bank 2)
+# Flash Cortex-M4 Core (Flash Bank 2)
 STM32_Programmer_CLI -c port=SWD -w STM32CubeIDE/CM4/Release/riverdi-70-stm32h7-lvgl_CM4.elf -rst
 ```
 
 ---
 
-## 💻 VS Code Task Explorer Integration
+## 📁 Directory Layout
 
-All development commands are mapped to VS Code Tasks inside `.vscode/tasks.json`. You can trigger them directly from the **Task Explorer** panel or via **Terminal $\rightarrow$ Run Task...**:
-
-| Task | Action |
-|---|---|
-| `Simulator: Build (Docker)` | Compile the SDL2 PC simulator binary |
-| `Simulator: Run (Host)` | Launch the 1024×600 simulator window on your desktop |
-| `Simulator: Build & Run` | Build then immediately launch (one shot) |
-| `Simulator: Clean` | Remove `pc_simulator/build/` |
-| `Docker: Build CM4` | Compile Cortex-M4 firmware |
-| `Docker: Build CM7` | Compile Cortex-M7 firmware |
-| `Docker: Build All (CM4 + CM7)` | Compile both cores simultaneously |
-| `Docker: Clean` | Clean all ARM build outputs |
-| `Flash: CM4` | Flash Cortex-M4 and trigger soft reset |
-| `Flash: CM7` | Flash Cortex-M7 and trigger soft reset |
-| `Flash: Both (CM7 then CM4 + reset)` | Flash both cores and reset the board |
+- **[CM4/](CM4)**: Cortex-M4 C Source Code (dedicated graphics engine loop).
+  - **[CM4/Core/Src/eez_ui/](CM4/Core/Src/eez_ui)**: Target directory for ported HMI screens, images, translations, and font tables.
+- **[CM7/](CM7)**: Cortex-M7 C Source Code (Modbus telemetry tasks, FreeRTOS control loops).
+- **[Common/](Common)**: IPC structures shared between cores.
+  - **[Common/shared_memory.h](Common/shared_memory.h)**: Shared memory buffer mapping layout.
+- **[EEZ/](EEZ)**: EEZ Studio workspace visual project configurations.
+- **[EEZ_Output/](EEZ_Output)**: Export folder from EEZ Studio.
+- **[pc_simulator/](pc_simulator)**: SDL2 simulation framework configuration for x86_64 hosts.
 
 ---
 
-## 📂 Project Structure
-
-```
-├── CM4/                  # Cortex-M4 Core C/C++ source code (HMI Engine)
-│   └── Core/
-│       ├── Inc/          # Header files
-│       └── Src/          # Core graphics, drivers, and eez_ui folder
-│
-├── CM7/                  # Cortex-M7 Core C/C++ source code (Calculations & OS)
-│   ├── Core/             # Hardware initialization, Main loop, and FreeRTOS tasks
-│   └── FATFS/            # FATFS filesystem driver mapping
-│
-├── Common/               # Code shared between both cores (Linker, Shared Memory)
-│   └── shared_memory.h   # Core-to-core IPC shared memory structure
-│
-├── Docs/                 # Guides and architectural diagrams
-│
-├── EEZ/                  # EEZ Studio visual project files
-│
-├── Middlewares/          # Third-party libraries (LVGL v8, FreeRTOS, FatFS)
-│
-├── pc_simulator/         # Native x86_64 PC Simulator (SDL2)
-│   ├── CMakeLists.txt    # CMake build config for the simulator target
-│   ├── main.c            # Simulator entry point (mirrors CM4 main loop)
-│   ├── sdl_port.c/h      # SDL2 display flush + keypad LVGL drivers
-│   └── pc_simulator_hw.c # Mock hardware / shared memory stubs
-│
-├── STM32CubeIDE/         # IDE configurations and Linker files
-│
-├── docker-compose.yml    # GCC + SDL2 compiler service container configuration
-└── port_eez_ui.py        # Automation script to port generated EEZ UI files
-```
-
----
-
-## 📖 Additional Documentation
-For deep-dives into specific topics, read our detailed guides:
-* [Docs/Project_Template_Architecture.md](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/Docs/Project_Template_Architecture.md) — Technical details of memory regions and HSEM semaphores.
-* [Docs/UI_Developing_Pipeline.md](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/Docs/UI_Developing_Pipeline.md) — Complete guide on connecting visual button actions to C callbacks.
-* [Docs/Build_and_Flash_CLI.md](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/Docs/Build_and_Flash_CLI.md) — CLI commands reference.
-* [Docs/Session_Summary.md](file:///home/alex/Documents/riverdi/RIVERDI_LVGL_TWERD_TEMPLATE/lv_port_riverdi_70-stm32h7/Docs/Session_Summary.md) — Detailed summary of memory profiling, debugging sessions, and DMA2D performance optimizations.
+## 📖 Associated Guides & Specifications
+For parent system specifications and detailed design requirements, refer to:
+* **[ui_requirements.md](../ui_requirements.md)**: Main UI spec (non-touch navigation rules, parameters list, STS cabinet states, active power flow directions).
+* **[parameters.json](../parameters.json)**: Machine configurations and scaling metrics.
+* **[parameters_description_en.md](../parameters_description_en.md)**: Detailed documentation of EMS Modbus registers.
+* **[architecture_diagram.md](../architecture_diagram.md)**: MVC model synchronization design summary.
