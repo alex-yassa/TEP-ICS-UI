@@ -67,6 +67,10 @@ void init_style_btn_menu_style_MAIN_FOCUSED(lv_style_t *style) {
     lv_style_set_line_color(style, lv_color_hex(0xffffff));
     lv_style_set_outline_width(style, 2);
     lv_style_set_outline_color(style, lv_color_hex(0x3b3b3b));
+    lv_style_set_layout(style, LV_LAYOUT_FLEX);
+    lv_style_set_flex_flow(style, LV_FLEX_FLOW_ROW);
+    lv_style_set_flex_main_place(style, LV_FLEX_ALIGN_START);
+    lv_style_set_flex_cross_place(style, LV_FLEX_ALIGN_CENTER);
 };
 
 lv_style_t *get_style_btn_menu_style_MAIN_FOCUSED() {
