@@ -375,6 +375,9 @@ static void set_navigation_mode(NavMode_t mode) {
             if (objects.settings_cos_phi_ta)       lv_group_add_obj(g, objects.settings_cos_phi_ta);
             if (objects.settings_nom_volt_ta)      lv_group_add_obj(g, objects.settings_nom_volt_ta);
             if (objects.settings_nom_freq_ta)      lv_group_add_obj(g, objects.settings_nom_freq_ta);
+            for (int f = 0; f < 6; f++) {
+                if (fake_tas[f]) lv_group_add_obj(g, fake_tas[f]);
+            }
             if (objects.settings_apply_btn)         lv_group_add_obj(g, objects.settings_apply_btn);
             if (objects.settings_reset_btn)         lv_group_add_obj(g, objects.settings_reset_btn);
             
@@ -968,63 +971,36 @@ void app_ui_init(void)
         lv_obj_add_event_cb(objects.login_password_ta, password_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
     }
 
-    /* Configure settings textareas as single line and clear placeholders to prevent showing default greyed-out values */
-    if (objects.settings_battery_count_ta) {
-        lv_textarea_set_one_line(objects.settings_battery_count_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_battery_count_ta, "");
-    }
-    if (objects.settings_pv_count_ta) {
-        lv_textarea_set_one_line(objects.settings_pv_count_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_pv_count_ta, "");
-    }
-    if (objects.settings_max_import_ta) {
-        lv_textarea_set_one_line(objects.settings_max_import_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_max_import_ta, "");
-    }
-    if (objects.settings_backup_soc_ta) {
-        lv_textarea_set_one_line(objects.settings_backup_soc_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_backup_soc_ta, "");
-    }
-    if (objects.settings_max_volt_ta) {
-        lv_textarea_set_one_line(objects.settings_max_volt_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_max_volt_ta, "");
-    }
-    if (objects.settings_min_volt_ta) {
-        lv_textarea_set_one_line(objects.settings_min_volt_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_min_volt_ta, "");
-    }
-    if (objects.settings_cos_phi_ta) {
-        lv_textarea_set_one_line(objects.settings_cos_phi_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_cos_phi_ta, "");
-    }
-    if (objects.settings_nom_volt_ta) {
-        lv_textarea_set_one_line(objects.settings_nom_volt_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_nom_volt_ta, "");
-    }
-    if (objects.settings_nom_freq_ta) {
-        lv_textarea_set_one_line(objects.settings_nom_freq_ta, true);
-        lv_textarea_set_placeholder_text(objects.settings_nom_freq_ta, "");
-    }
+    /* Configure all settings textareas (real and fake) */
+    lv_obj_t *settings_tas[] = {
+        objects.settings_battery_count_ta, objects.settings_pv_count_ta, objects.settings_max_import_ta,
+        objects.settings_backup_soc_ta, objects.settings_max_volt_ta, objects.settings_min_volt_ta,
+        objects.settings_cos_phi_ta, objects.settings_nom_volt_ta, objects.settings_nom_freq_ta,
+        objects.fake_settings_ta_0, objects.fake_settings_ta_1, objects.fake_settings_ta_2,
+        objects.fake_settings_ta_3, objects.fake_settings_ta_4, objects.fake_settings_ta_5
+    };
 
-    /* Register event callbacks on all settings textareas */
-    if (objects.settings_battery_count_ta) lv_obj_add_event_cb(objects.settings_battery_count_ta, settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_pv_count_ta)      lv_obj_add_event_cb(objects.settings_pv_count_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_max_import_ta)    lv_obj_add_event_cb(objects.settings_max_import_ta,    settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_backup_soc_ta)    lv_obj_add_event_cb(objects.settings_backup_soc_ta,    settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_max_volt_ta)      lv_obj_add_event_cb(objects.settings_max_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_min_volt_ta)      lv_obj_add_event_cb(objects.settings_min_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_cos_phi_ta)       lv_obj_add_event_cb(objects.settings_cos_phi_ta,       settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_nom_volt_ta)      lv_obj_add_event_cb(objects.settings_nom_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-    if (objects.settings_nom_freq_ta)      lv_obj_add_event_cb(objects.settings_nom_freq_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    for (int i = 0; i < (int)(sizeof(settings_tas)/sizeof(settings_tas[0])); i++) {
+        if (settings_tas[i]) {
+            lv_textarea_set_one_line(settings_tas[i], true);
+            lv_textarea_set_placeholder_text(settings_tas[i], "");
+            lv_obj_add_flag(settings_tas[i], LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+            lv_obj_add_event_cb(settings_tas[i], settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+            lv_obj_add_event_cb(settings_tas[i], global_navigation_key_cb, LV_EVENT_KEY, NULL);
+            register_focus_sync(settings_tas[i]);
+        }
+    }
 
     /* Register focus sync on settings buttons */
     if (objects.settings_apply_btn) {
         register_focus_sync(objects.settings_apply_btn);
         lv_obj_add_style(objects.settings_apply_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_apply_btn, global_navigation_key_cb, LV_EVENT_KEY, NULL);
     }
     if (objects.settings_reset_btn) {
         register_focus_sync(objects.settings_reset_btn);
         lv_obj_add_style(objects.settings_reset_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_reset_btn, global_navigation_key_cb, LV_EVENT_KEY, NULL);
     }
 
     /* Register 2D navigation callback on all pinpad buttons */
@@ -1041,7 +1017,7 @@ void app_ui_init(void)
         }
     }
 
-    /* Register navigation key callback on main menu and settings widgets */
+    /* Register navigation key callback on main menu and header controls */
     if (objects.dashboard_button)       lv_obj_add_event_cb(objects.dashboard_button,       global_navigation_key_cb, LV_EVENT_KEY, NULL);
     if (objects.view_1_button)          lv_obj_add_event_cb(objects.view_1_button,          global_navigation_key_cb, LV_EVENT_KEY, NULL);
     if (objects.view_2_button)          lv_obj_add_event_cb(objects.view_2_button,          global_navigation_key_cb, LV_EVENT_KEY, NULL);
@@ -1051,19 +1027,6 @@ void app_ui_init(void)
     if (objects.sys_settings_button)    lv_obj_add_event_cb(objects.sys_settings_button,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
     if (login_btn)                      lv_obj_add_event_cb(login_btn,                      global_navigation_key_cb, LV_EVENT_KEY, NULL);
     if (objects.lang_selector_button)   lv_obj_add_event_cb(objects.lang_selector_button,   global_navigation_key_cb, LV_EVENT_KEY, NULL);
-
-    if (objects.settings_battery_count_ta) lv_obj_add_event_cb(objects.settings_battery_count_ta, global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_pv_count_ta)      lv_obj_add_event_cb(objects.settings_pv_count_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_max_import_ta)    lv_obj_add_event_cb(objects.settings_max_import_ta,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_backup_soc_ta)    lv_obj_add_event_cb(objects.settings_backup_soc_ta,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_max_volt_ta)      lv_obj_add_event_cb(objects.settings_max_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_min_volt_ta)      lv_obj_add_event_cb(objects.settings_min_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_cos_phi_ta)       lv_obj_add_event_cb(objects.settings_cos_phi_ta,       global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_nom_volt_ta)      lv_obj_add_event_cb(objects.settings_nom_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_nom_freq_ta)      lv_obj_add_event_cb(objects.settings_nom_freq_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
-
-    if (objects.settings_apply_btn)         lv_obj_add_event_cb(objects.settings_apply_btn,         global_navigation_key_cb, LV_EVENT_KEY, NULL);
-    if (objects.settings_reset_btn)         lv_obj_add_event_cb(objects.settings_reset_btn,         global_navigation_key_cb, LV_EVENT_KEY, NULL);
 
     /* Initialize navigation mode to Main Menu Mode */
     if (g) {
