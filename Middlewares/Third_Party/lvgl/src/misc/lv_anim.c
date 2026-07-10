@@ -91,6 +91,9 @@ lv_anim_t * lv_anim_start(const lv_anim_t * a)
 
     /*Initialize the animation descriptor*/
     lv_memcpy(new_anim, a, sizeof(lv_anim_t));
+    new_anim->time = 0;
+    new_anim->start_value = new_anim->end_value;
+    if(new_anim->act_time < 0) new_anim->act_time = 0;
     if(a->var == a) new_anim->var = new_anim;
     new_anim->run_round = anim_run_round;
 

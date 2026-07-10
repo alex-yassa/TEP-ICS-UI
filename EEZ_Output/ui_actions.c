@@ -136,6 +136,7 @@ extern SharedBuffer_t sim_shared_buffer;
 static void show_pinpad(lv_obj_t * ta);
 static lv_obj_t *login_btn = NULL;
 
+
 static lv_obj_t *get_login_user_label(void) {
     if (objects.login_btn) {
         return lv_obj_get_child(objects.login_btn, 1);
@@ -320,7 +321,46 @@ static void settings_ta_event_cb(lv_event_t *e)
     }
 }
 
-static void set_navigation_mode(NavMode_t mode) {
+static void rebuild_settings_group(lv_group_t *g, int page)
+{
+    if (!g) return;
+    lv_group_remove_all_objs(g);
+    
+    if (page == 0) { // Page 1 (tab7)
+        if (objects.settings_battery_count_ta) lv_group_add_obj(g, objects.settings_battery_count_ta);
+        if (objects.settings_pv_count_ta)      lv_group_add_obj(g, objects.settings_pv_count_ta);
+        if (objects.settings_max_import_ta)    lv_group_add_obj(g, objects.settings_max_import_ta);
+        if (objects.settings_backup_soc_ta)    lv_group_add_obj(g, objects.settings_backup_soc_ta);
+        if (objects.settings_max_volt_ta)      lv_group_add_obj(g, objects.settings_max_volt_ta);
+        if (objects.settings_next_btn)          lv_group_add_obj(g, objects.settings_next_btn);
+        if (objects.settings_apply_btn)         lv_group_add_obj(g, objects.settings_apply_btn);
+        if (objects.settings_reset_btn)         lv_group_add_obj(g, objects.settings_reset_btn);
+    }
+    else if (page == 1) { // Page 2 (tab8)
+        if (objects.settings_min_volt_ta)      lv_group_add_obj(g, objects.settings_min_volt_ta);
+        if (objects.settings_cos_phi_ta)       lv_group_add_obj(g, objects.settings_cos_phi_ta);
+        if (objects.settings_nom_volt_ta)      lv_group_add_obj(g, objects.settings_nom_volt_ta);
+        if (objects.settings_nom_freq_ta)      lv_group_add_obj(g, objects.settings_nom_freq_ta);
+        if (objects.settings_prev_btn_2)        lv_group_add_obj(g, objects.settings_prev_btn_2);
+        if (objects.settings_next_btn_2)        lv_group_add_obj(g, objects.settings_next_btn_2);
+        if (objects.settings_apply_btn_2)       lv_group_add_obj(g, objects.settings_apply_btn_2);
+        if (objects.settings_reset_btn_2)       lv_group_add_obj(g, objects.settings_reset_btn_2);
+    }
+    else if (page == 2) { // Page 3 (tab9)
+        if (objects.fake_settings_ta_0)         lv_group_add_obj(g, objects.fake_settings_ta_0);
+        if (objects.fake_settings_ta_1)         lv_group_add_obj(g, objects.fake_settings_ta_1);
+        if (objects.fake_settings_ta_2)         lv_group_add_obj(g, objects.fake_settings_ta_2);
+        if (objects.fake_settings_ta_3)         lv_group_add_obj(g, objects.fake_settings_ta_3);
+        if (objects.fake_settings_ta_4)         lv_group_add_obj(g, objects.fake_settings_ta_4);
+        if (objects.fake_settings_ta_5)         lv_group_add_obj(g, objects.fake_settings_ta_5);
+        if (objects.settings_prev_btn_3)        lv_group_add_obj(g, objects.settings_prev_btn_3);
+        if (objects.settings_apply_btn_3)       lv_group_add_obj(g, objects.settings_apply_btn_3);
+        if (objects.settings_reset_btn_3)       lv_group_add_obj(g, objects.settings_reset_btn_3);
+    }
+}
+
+void set_navigation_mode(NavMode_t mode)
+{
     lv_group_t *g = lv_group_get_default();
     if (!g) return;
     
@@ -353,7 +393,9 @@ static void set_navigation_mode(NavMode_t mode) {
             case 3: focus_target = objects.gen_clusters_button; break;
             case 4: focus_target = objects.load_management_button; break;
             case 5: focus_target = objects.diagnostics_button; break;
-            case 6: focus_target = objects.sys_settings_button; break;
+            case 6:
+            case 7:
+            case 8: focus_target = objects.sys_settings_button; break;
         }
         lv_group_focus_obj(focus_target);
         app_log_event("Navigation mode: MAIN MENU");
@@ -364,26 +406,16 @@ static void set_navigation_mode(NavMode_t mode) {
             act_tab = lv_tabview_get_tab_act(objects.tabview);
         }
         
-        if (act_tab == 6) {
-            // Add settings tab elements to default group
-            if (objects.settings_battery_count_ta) lv_group_add_obj(g, objects.settings_battery_count_ta);
-            if (objects.settings_pv_count_ta)      lv_group_add_obj(g, objects.settings_pv_count_ta);
-            if (objects.settings_max_import_ta)    lv_group_add_obj(g, objects.settings_max_import_ta);
-            if (objects.settings_backup_soc_ta)    lv_group_add_obj(g, objects.settings_backup_soc_ta);
-            if (objects.settings_max_volt_ta)      lv_group_add_obj(g, objects.settings_max_volt_ta);
-            if (objects.settings_min_volt_ta)      lv_group_add_obj(g, objects.settings_min_volt_ta);
-            if (objects.settings_cos_phi_ta)       lv_group_add_obj(g, objects.settings_cos_phi_ta);
-            if (objects.settings_nom_volt_ta)      lv_group_add_obj(g, objects.settings_nom_volt_ta);
-            if (objects.settings_nom_freq_ta)      lv_group_add_obj(g, objects.settings_nom_freq_ta);
-            for (int f = 0; f < 6; f++) {
-                if (fake_tas[f]) lv_group_add_obj(g, fake_tas[f]);
-            }
-            if (objects.settings_apply_btn)         lv_group_add_obj(g, objects.settings_apply_btn);
-            if (objects.settings_reset_btn)         lv_group_add_obj(g, objects.settings_reset_btn);
+        if (act_tab == 6 || act_tab == 7 || act_tab == 8) {
+            rebuild_settings_group(g, act_tab - 6);
             
-            // Focus the first element (battery count textarea)
-            if (objects.settings_battery_count_ta) {
+            // Focus first element of active tab page
+            if (act_tab == 6 && objects.settings_battery_count_ta) {
                 lv_group_focus_obj(objects.settings_battery_count_ta);
+            } else if (act_tab == 7 && objects.settings_min_volt_ta) {
+                lv_group_focus_obj(objects.settings_min_volt_ta);
+            } else if (act_tab == 8 && objects.fake_settings_ta_0) {
+                lv_group_focus_obj(objects.fake_settings_ta_0);
             }
             app_log_event("Navigation mode: SETTINGS TAB ELEMENTS");
         } else {
@@ -393,16 +425,64 @@ static void set_navigation_mode(NavMode_t mode) {
     }
 }
 
+
+
+static void action_next_page_clicked(lv_event_t *e)
+{
+    (void)e;
+    if (objects.tabview) {
+        uint16_t act_tab = lv_tabview_get_tab_act(objects.tabview);
+        if (act_tab == 6) {
+            lv_tabview_set_act(objects.tabview, 7, LV_ANIM_OFF);
+            rebuild_settings_group(lv_group_get_default(), 1);
+            if (objects.settings_min_volt_ta) {
+                lv_group_focus_obj(objects.settings_min_volt_ta);
+            }
+        } else if (act_tab == 7) {
+            lv_tabview_set_act(objects.tabview, 8, LV_ANIM_OFF);
+            rebuild_settings_group(lv_group_get_default(), 2);
+            if (objects.fake_settings_ta_0) {
+                lv_group_focus_obj(objects.fake_settings_ta_0);
+            }
+        }
+    }
+}
+
+static void action_prev_page_clicked(lv_event_t *e)
+{
+    (void)e;
+    if (objects.tabview) {
+        uint16_t act_tab = lv_tabview_get_tab_act(objects.tabview);
+        if (act_tab == 7) {
+            lv_tabview_set_act(objects.tabview, 6, LV_ANIM_OFF);
+            rebuild_settings_group(lv_group_get_default(), 0);
+            if (objects.settings_battery_count_ta) {
+                lv_group_focus_obj(objects.settings_battery_count_ta);
+            }
+        } else if (act_tab == 8) {
+            lv_tabview_set_act(objects.tabview, 7, LV_ANIM_OFF);
+            rebuild_settings_group(lv_group_get_default(), 1);
+            if (objects.settings_min_volt_ta) {
+                lv_group_focus_obj(objects.settings_min_volt_ta);
+            }
+        }
+    }
+}
+
 static void global_navigation_key_cb(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
     if (code == LV_EVENT_KEY) {
         uint32_t key = lv_event_get_key(e);
+        
         if (g_nav_mode == NAV_MODE_MENU) {
             if (key == LV_KEY_RIGHT) {
-                // If System Settings is active, go into the tab elements
-                if (objects.tabview && lv_tabview_get_tab_act(objects.tabview) == 6) {
-                    lv_event_stop_processing(e);
-                    set_navigation_mode(NAV_MODE_TAB);
+                // If any System Settings page is active, go into the tab elements
+                if (objects.tabview) {
+                    uint16_t act_tab = lv_tabview_get_tab_act(objects.tabview);
+                    if (act_tab == 6 || act_tab == 7 || act_tab == 8) {
+                        lv_event_stop_processing(e);
+                        set_navigation_mode(NAV_MODE_TAB);
+                    }
                 }
             }
         } else if (g_nav_mode == NAV_MODE_TAB) {
@@ -410,6 +490,7 @@ static void global_navigation_key_cb(lv_event_t *e) {
                 // Return to main menu
                 lv_event_stop_processing(e);
                 set_navigation_mode(NAV_MODE_MENU);
+                return;
             }
         }
     }
@@ -988,19 +1069,67 @@ void app_ui_init(void)
             lv_obj_add_event_cb(settings_tas[i], settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
             lv_obj_add_event_cb(settings_tas[i], global_navigation_key_cb, LV_EVENT_KEY, NULL);
             register_focus_sync(settings_tas[i]);
+            if (i >= 9) {
+                lv_textarea_set_text(settings_tas[i], "999");
+            }
         }
     }
 
-    /* Register focus sync on settings buttons */
-    if (objects.settings_apply_btn) {
-        register_focus_sync(objects.settings_apply_btn);
-        lv_obj_add_style(objects.settings_apply_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
-        lv_obj_add_event_cb(objects.settings_apply_btn, global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    /* Clear scroll-on-focus flags on tabview and tabs to prevent page offsets during focus shifts */
+    if (objects.tabview) {
+        lv_obj_clear_flag(objects.tabview, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+        lv_obj_t *tabview_content = lv_tabview_get_content(objects.tabview);
+        if (tabview_content) {
+            lv_obj_clear_flag(tabview_content, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+        }
     }
-    if (objects.settings_reset_btn) {
-        register_focus_sync(objects.settings_reset_btn);
-        lv_obj_add_style(objects.settings_reset_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
-        lv_obj_add_event_cb(objects.settings_reset_btn, global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    lv_obj_t *tabs[] = {
+        objects.tab1, objects.tab2, objects.tab3,
+        objects.tab4, objects.tab5, objects.tab6,
+        objects.tab7, objects.tab8, objects.tab9
+    };
+    for (int i = 0; i < 9; i++) {
+        if (tabs[i]) {
+            lv_obj_clear_flag(tabs[i], LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+        }
+    }
+
+    /* Register focus sync and callbacks on settings buttons (duplicated on pages 1, 2, and 3) */
+    lv_obj_t *apply_btns[] = {objects.settings_apply_btn, objects.settings_apply_btn_2, objects.settings_apply_btn_3};
+    lv_obj_t *reset_btns[] = {objects.settings_reset_btn, objects.settings_reset_btn_2, objects.settings_reset_btn_3};
+    for (int i = 0; i < 3; i++) {
+        if (apply_btns[i]) {
+            register_focus_sync(apply_btns[i]);
+            lv_obj_add_style(apply_btns[i], get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+            lv_obj_add_event_cb(apply_btns[i], global_navigation_key_cb, LV_EVENT_KEY, NULL);
+        }
+        if (reset_btns[i]) {
+            register_focus_sync(reset_btns[i]);
+            lv_obj_add_style(reset_btns[i], get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+            lv_obj_add_event_cb(reset_btns[i], global_navigation_key_cb, LV_EVENT_KEY, NULL);
+        }
+    }
+
+    /* Register focus sync and callbacks on settings navigation buttons generated from EEZ Studio */
+    if (objects.settings_next_btn) {
+        register_focus_sync(objects.settings_next_btn);
+        lv_obj_add_style(objects.settings_next_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_next_btn, action_next_page_clicked, LV_EVENT_CLICKED, NULL);
+    }
+    if (objects.settings_prev_btn_2) {
+        register_focus_sync(objects.settings_prev_btn_2);
+        lv_obj_add_style(objects.settings_prev_btn_2, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_prev_btn_2, action_prev_page_clicked, LV_EVENT_CLICKED, NULL);
+    }
+    if (objects.settings_next_btn_2) {
+        register_focus_sync(objects.settings_next_btn_2);
+        lv_obj_add_style(objects.settings_next_btn_2, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_next_btn_2, action_next_page_clicked, LV_EVENT_CLICKED, NULL);
+    }
+    if (objects.settings_prev_btn_3) {
+        register_focus_sync(objects.settings_prev_btn_3);
+        lv_obj_add_style(objects.settings_prev_btn_3, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+        lv_obj_add_event_cb(objects.settings_prev_btn_3, action_prev_page_clicked, LV_EVENT_CLICKED, NULL);
     }
 
     /* Register 2D navigation callback on all pinpad buttons */

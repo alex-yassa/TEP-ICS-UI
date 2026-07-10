@@ -1,6 +1,7 @@
 #include "ui_translate.h"
 #include "screens.h"
 #include <string.h>
+#include <stdio.h>
 
 int g_current_language = 0; // Default to index 0 (PL)
 
@@ -93,7 +94,21 @@ void ui_translate_update(void) {
     if (objects.label_fourth_view) lv_label_set_text(objects.label_fourth_view, translate("Gen Clusters View", lang));
     if (objects.label_fifth_view) lv_label_set_text(objects.label_fifth_view, translate("Load Management View", lang));
     if (objects.label_sixth_view) lv_label_set_text(objects.label_sixth_view, translate("Diagnostics View", lang));
-    if (objects.label_settings_title) lv_label_set_text(objects.label_settings_title, translate("SYSTEM CONFIGURATION", lang));
+    if (objects.label_settings_title) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "%s (1/3)", translate("SYSTEM CONFIGURATION", lang));
+        lv_label_set_text(objects.label_settings_title, buf);
+    }
+    if (objects.label_settings_title_2) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "%s (2/3)", translate("SYSTEM CONFIGURATION", lang));
+        lv_label_set_text(objects.label_settings_title_2, buf);
+    }
+    if (objects.label_settings_title_3) {
+        char buf[64];
+        snprintf(buf, sizeof(buf), "%s (3/3)", translate("SYSTEM CONFIGURATION", lang));
+        lv_label_set_text(objects.label_settings_title_3, buf);
+    }
 
     // Settings rows
     if (objects.label_row_0) lv_label_set_text(objects.label_row_0, translate("Battery Clusters Count (Max 2)", lang));
@@ -108,7 +123,11 @@ void ui_translate_update(void) {
 
     // Settings buttons
     if (objects.settings_apply_btn_label) lv_label_set_text(objects.settings_apply_btn_label, translate("Apply", lang));
+    if (objects.settings_apply_btn_label_2) lv_label_set_text(objects.settings_apply_btn_label_2, translate("Apply", lang));
+    if (objects.settings_apply_btn_label_3) lv_label_set_text(objects.settings_apply_btn_label_3, translate("Apply", lang));
     if (objects.settings_reset_btn_label) lv_label_set_text(objects.settings_reset_btn_label, translate("Reset Changes", lang));
+    if (objects.settings_reset_btn_label_2) lv_label_set_text(objects.settings_reset_btn_label_2, translate("Reset Changes", lang));
+    if (objects.settings_reset_btn_label_3) lv_label_set_text(objects.settings_reset_btn_label_3, translate("Reset Changes", lang));
 
     // 3. Login modal texts
     if (objects.login_title_label) lv_label_set_text(objects.login_title_label, translate("USER SIGN IN", lang));
