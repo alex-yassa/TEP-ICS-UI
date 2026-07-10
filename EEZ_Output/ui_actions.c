@@ -12,7 +12,7 @@
 
 static void my_ui_log(const char *fmt, ...)
 {
-    FILE *f = fopen("/home/alex/Documents/PROJECTS/INVERTERS/InterpriseEnergySupply/CentralEMS/EMS_app/ui_debug.log", "a");
+    FILE *f = fopen("ui_debug.log", "a");
     if (f) {
         va_list args;
         va_start(args, fmt);

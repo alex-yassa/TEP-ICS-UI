@@ -518,7 +518,7 @@ def generate_subdir_mk(c_files):
     rules_lines = []
 
     for f in sorted(c_files):
-        src_path = f"{PROJECT_ROOT}/CM4/Core/Src/eez_ui/{f}"
+        src_path = os.path.relpath(os.path.join(PROJECT_ROOT, "CM4/Core/Src/eez_ui", f), RELEASE_DIR)
         obj_name = f.replace(".c", ".o")
         dep_name = f.replace(".c", ".d")
         
