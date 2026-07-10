@@ -68,3 +68,4 @@ Middlewares/Third_Party/LVGL_v9_backup/
 
 # OnlyOffice / LibreOffice lock files
 .~lock.*#
+ui_debug.log

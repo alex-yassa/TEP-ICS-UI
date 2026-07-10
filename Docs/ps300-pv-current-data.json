@@ -1,0 +1,240 @@
+{
+    "sn": "880/23",
+    "stamp_time": 1783671162,
+    "collection_time": 1783671162,
+    "IP": "192.168.1.103",
+    "PCB": "V2",
+    "collection_data": [
+        {
+            "Name": "InpU1",
+            "Value": 569,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "InpU2",
+            "Value": 422,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "InpI1",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "InpI2",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "InpP1",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "InpP2",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "GridFreq",
+            "Value": 5000,
+            "Unit": "Hz.d2"
+        },
+        {
+            "Name": "GridU1",
+            "Value": 232,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "GridU2",
+            "Value": 229,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "GridU3",
+            "Value": 232,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "GridI1",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "GridI2",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "GridI3",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "GridP1",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "GridP2",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "GridP3",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "GridP",
+            "Value": 0,
+            "Unit": "W.d0"
+        },
+        {
+            "Name": "GridQ1",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridQ2",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridQ3",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridQ",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "TurbFreq",
+            "Value": 0,
+            "Unit": "Hz.d1"
+        },
+        {
+            "Name": "WindSpeed",
+            "Value": 0,
+            "Unit": "m/s.d1"
+        },
+        {
+            "Name": "BattU",
+            "Value": 0,
+            "Unit": "V.d1"
+        },
+        {
+            "Name": "BattI",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "SoCBatt",
+            "Value": 0,
+            "Unit": "%.d1"
+        },
+        {
+            "Name": "SoHBatt",
+            "Value": 0,
+            "Unit": "%.d1"
+        },
+        {
+            "Name": "BattTemp",
+            "Value": 0,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "BattChargerTemp",
+            "Value": 0,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "EGP1",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "EGP2",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "EGP3",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "UDC1",
+            "Value": 340,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "UDC2",
+            "Value": 339,
+            "Unit": "V.d0"
+        },
+        {
+            "Name": "InvTemp",
+            "Value": 0,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "LeakCurr",
+            "Value": 408,
+            "Unit": "mA.d0"
+        },
+        {
+            "Name": "Iodata",
+            "Value": 194,
+            "Unit": "-"
+        },
+        {
+            "Name": "RIzo",
+            "Value": 254,
+            "Unit": "kohm.d0"
+        },
+        {
+            "Name": "CodeVerSt",
+            "Value": 160,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeRevSt",
+            "Value": 51,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeVerInv",
+            "Value": 365,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeVerBatt",
+            "Value": 0,
+            "Unit": "-"
+        },
+        {
+            "Name": "ProdEn",
+            "Value": 20625,
+            "Unit": "kWh.d0"
+        },
+        {
+            "Name": "RunTime",
+            "Value": 9458,
+            "Unit": "h.d0"
+        },
+        {
+            "Name": "Flags1",
+            "Value": 16948,
+            "Unit": "-"
+        },
+        {
+            "Name": "Flags2",
+            "Value": 0,
+            "Unit": "-"
+        }
+    ],
+    "stamp_hash": "0"
+}

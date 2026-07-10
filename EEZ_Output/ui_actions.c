@@ -10,6 +10,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+typedef enum {
+    NAV_MODE_MENU,
+    NAV_MODE_TAB
+} NavMode_t;
+
+static NavMode_t g_nav_mode = NAV_MODE_MENU;
+static void set_navigation_mode(NavMode_t mode);
+
 static void my_ui_log(const char *fmt, ...)
 {
     FILE *f = fopen("ui_debug.log", "a");
@@ -117,6 +125,29 @@ void action_diagnostics_button_clicked(lv_event_t * e)
     app_log_event("Diagnostics navigation selected");
 }
 
+#include <stdlib.h>
+
+#ifndef PC_SIMULATOR
+#include "main.h"
+#else
+extern SharedBuffer_t sim_shared_buffer;
+#endif
+
+static void show_pinpad(lv_obj_t * ta);
+static lv_obj_t *login_btn = NULL;
+
+static lv_obj_t *get_login_user_label(void) {
+    if (objects.login_btn) {
+        return lv_obj_get_child(objects.login_btn, 1);
+    }
+    if (login_btn) {
+        return lv_obj_get_child(login_btn, 0);
+    }
+    return NULL;
+}
+
+extern void action_settings_reset_clicked(lv_event_t * e);
+
 void action_sys_settings_button_clicked(lv_event_t * e)
 {
     (void)e;
@@ -126,11 +157,265 @@ void action_sys_settings_button_clicked(lv_event_t * e)
     app_log_event("Sys settings navigation selected");
 }
 
+static float get_ta_float(lv_obj_t *ta) {
+    if (!ta) return 0.0f;
+    const char *txt = lv_textarea_get_text(ta);
+    if (!txt || strlen(txt) == 0) {
+        txt = lv_textarea_get_placeholder_text(ta);
+    }
+    if (!txt) return 0.0f;
+    return atof(txt);
+}
+
+static int get_ta_int(lv_obj_t *ta) {
+    if (!ta) return 0;
+    const char *txt = lv_textarea_get_text(ta);
+    if (!txt || strlen(txt) == 0) {
+        txt = lv_textarea_get_placeholder_text(ta);
+    }
+    if (!txt) return 0;
+    return atoi(txt);
+}
+
+static void set_ta_float(lv_obj_t *ta, float val, const char *fmt) {
+    if (!ta) return;
+    char buf[32];
+    snprintf(buf, sizeof(buf), fmt, val);
+    lv_textarea_set_text(ta, buf);
+}
+
+static void set_ta_int(lv_obj_t *ta, int val) {
+    if (!ta) return;
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%d", val);
+    lv_textarea_set_text(ta, buf);
+}
+
+void action_settings_apply_clicked(lv_event_t * e) {
+    (void)e;
+    
+    // Parse values from textareas
+    int batt_count = get_ta_int(objects.settings_battery_count_ta);
+    int pv_count = get_ta_int(objects.settings_pv_count_ta);
+    float max_import = get_ta_float(objects.settings_max_import_ta);
+    float backup_soc = get_ta_float(objects.settings_backup_soc_ta);
+    float max_volt = get_ta_float(objects.settings_max_volt_ta);
+    float min_volt = get_ta_float(objects.settings_min_volt_ta);
+    float target_pf = get_ta_float(objects.settings_cos_phi_ta);
+    int nom_volt = get_ta_int(objects.settings_nom_volt_ta);
+    int nom_freq = get_ta_int(objects.settings_nom_freq_ta);
+    
+    // Save to shared memory
+    bool saved = false;
+#ifndef PC_SIMULATOR
+    if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK) {
+        volatile SharedBuffer_t *shared = SHARED_BUFFER;
+        shared->cfg_grid_max_p_import = max_import;
+        shared->cfg_bat_backup_soc = backup_soc;
+        shared->cfg_bat_max_volt = max_volt;
+        shared->cfg_bat_min_volt = min_volt;
+        shared->cfg_target_cos_phi = target_pf;
+        shared->cfg_grid_nom_volt = nom_volt;
+        shared->cfg_grid_nom_freq = nom_freq;
+        HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
+        saved = true;
+    }
+#else
+    // PC Simulator direct update
+    sim_shared_buffer.cfg_grid_max_p_import = max_import;
+    sim_shared_buffer.cfg_bat_backup_soc = backup_soc;
+    sim_shared_buffer.cfg_bat_max_volt = max_volt;
+    sim_shared_buffer.cfg_bat_min_volt = min_volt;
+    sim_shared_buffer.cfg_target_cos_phi = target_pf;
+    sim_shared_buffer.cfg_grid_nom_volt = nom_volt;
+    sim_shared_buffer.cfg_grid_nom_freq = nom_freq;
+    saved = true;
+#endif
+
+    if (saved) {
+        app_log_event("System settings applied successfully");
+        char msg[128];
+        snprintf(msg, sizeof(msg), "[Settings] Applied: Bat=%d, PV=%d, PMax=%.1f kW, BackupSoC=%.1f%%, VMax=%.1fV, VMin=%.1fV, PF=%.2f, VNom=%dV, FNom=%dHz",
+                 batt_count, pv_count, max_import, backup_soc, max_volt, min_volt, target_pf, nom_volt, nom_freq);
+        app_log_event(msg);
+    } else {
+        app_log_event("Failed to apply system settings: Semaphore busy");
+    }
+}
+
+void action_settings_reset_clicked(lv_event_t * e) {
+    (void)e;
+    
+    float max_import = 0.0f;
+    float backup_soc = 0.0f;
+    float max_volt = 0.0f;
+    float min_volt = 0.0f;
+    float target_pf = 0.0f;
+    int nom_volt = 0;
+    int nom_freq = 0;
+    
+    // Read from shared memory
+    bool loaded = false;
+#ifndef PC_SIMULATOR
+    if (HAL_HSEM_Take(HSEM_ID_SHARED_MEM, 0) == HAL_OK) {
+        volatile SharedBuffer_t *shared = SHARED_BUFFER;
+        max_import = shared->cfg_grid_max_p_import;
+        backup_soc = shared->cfg_bat_backup_soc;
+        max_volt = shared->cfg_bat_max_volt;
+        min_volt = shared->cfg_bat_min_volt;
+        target_pf = shared->cfg_target_cos_phi;
+        nom_volt = shared->cfg_grid_nom_volt;
+        nom_freq = shared->cfg_grid_nom_freq;
+        HAL_HSEM_Release(HSEM_ID_SHARED_MEM, 0);
+        loaded = true;
+    }
+#else
+    max_import = sim_shared_buffer.cfg_grid_max_p_import;
+    backup_soc = sim_shared_buffer.cfg_bat_backup_soc;
+    max_volt = sim_shared_buffer.cfg_bat_max_volt;
+    min_volt = sim_shared_buffer.cfg_bat_min_volt;
+    target_pf = sim_shared_buffer.cfg_target_cos_phi;
+    nom_volt = sim_shared_buffer.cfg_grid_nom_volt;
+    nom_freq = sim_shared_buffer.cfg_grid_nom_freq;
+    loaded = true;
+#endif
+
+    if (loaded) {
+        // Update textareas with current shared memory values
+        set_ta_int(objects.settings_battery_count_ta, 2); // Default to 2
+        set_ta_int(objects.settings_pv_count_ta, 2);      // Default to 2
+        set_ta_float(objects.settings_max_import_ta, max_import, "%.1f");
+        set_ta_float(objects.settings_backup_soc_ta, backup_soc, "%.1f");
+        set_ta_float(objects.settings_max_volt_ta, max_volt, "%.1f");
+        set_ta_float(objects.settings_min_volt_ta, min_volt, "%.1f");
+        set_ta_float(objects.settings_cos_phi_ta, target_pf, "%.2f");
+        set_ta_int(objects.settings_nom_volt_ta, nom_volt);
+        set_ta_int(objects.settings_nom_freq_ta, nom_freq);
+        
+        app_log_event("System settings reset to current device state");
+    } else {
+        app_log_event("Failed to reset system settings: Semaphore busy");
+    }
+}
+
+static void settings_ta_event_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *ta = lv_event_get_target(e);
+    if (code == LV_EVENT_KEY) {
+        uint32_t key = lv_event_get_key(e);
+        if (key == LV_KEY_ENTER) {
+            lv_event_stop_processing(e);
+            show_pinpad(ta);
+        }
+    } else if (code == LV_EVENT_CLICKED) {
+        lv_indev_t *indev = lv_indev_get_act();
+        if (indev) {
+            lv_indev_type_t type = lv_indev_get_type(indev);
+            if (type == LV_INDEV_TYPE_KEYPAD || type == LV_INDEV_TYPE_ENCODER) {
+                return;
+            }
+        }
+        show_pinpad(ta);
+    }
+}
+
+static void set_navigation_mode(NavMode_t mode) {
+    lv_group_t *g = lv_group_get_default();
+    if (!g) return;
+    
+    g_nav_mode = mode;
+    lv_group_remove_all_objs(g);
+    
+    if (mode == NAV_MODE_MENU) {
+        // Add only sidebar menu buttons to the default group
+        lv_group_add_obj(g, objects.dashboard_button);
+        lv_group_add_obj(g, objects.view_1_button);
+        lv_group_add_obj(g, objects.view_2_button);
+        lv_group_add_obj(g, objects.gen_clusters_button);
+        lv_group_add_obj(g, objects.load_management_button);
+        lv_group_add_obj(g, objects.diagnostics_button);
+        lv_group_add_obj(g, objects.sys_settings_button);
+        if (login_btn) lv_group_add_obj(g, login_btn);
+        if (objects.lang_selector_button) lv_group_add_obj(g, objects.lang_selector_button);
+        
+        // Focus the active menu button based on current tab
+        uint16_t act_tab = 0;
+        if (objects.tabview) {
+            act_tab = lv_tabview_get_tab_act(objects.tabview);
+        }
+        
+        lv_obj_t *focus_target = objects.dashboard_button;
+        switch (act_tab) {
+            case 0: focus_target = objects.dashboard_button; break;
+            case 1: focus_target = objects.view_1_button; break;
+            case 2: focus_target = objects.view_2_button; break;
+            case 3: focus_target = objects.gen_clusters_button; break;
+            case 4: focus_target = objects.load_management_button; break;
+            case 5: focus_target = objects.diagnostics_button; break;
+            case 6: focus_target = objects.sys_settings_button; break;
+        }
+        lv_group_focus_obj(focus_target);
+        app_log_event("Navigation mode: MAIN MENU");
+    } else {
+        // Tab Navigation Mode
+        uint16_t act_tab = 0;
+        if (objects.tabview) {
+            act_tab = lv_tabview_get_tab_act(objects.tabview);
+        }
+        
+        if (act_tab == 6) {
+            // Add settings tab elements to default group
+            if (objects.settings_battery_count_ta) lv_group_add_obj(g, objects.settings_battery_count_ta);
+            if (objects.settings_pv_count_ta)      lv_group_add_obj(g, objects.settings_pv_count_ta);
+            if (objects.settings_max_import_ta)    lv_group_add_obj(g, objects.settings_max_import_ta);
+            if (objects.settings_backup_soc_ta)    lv_group_add_obj(g, objects.settings_backup_soc_ta);
+            if (objects.settings_max_volt_ta)      lv_group_add_obj(g, objects.settings_max_volt_ta);
+            if (objects.settings_min_volt_ta)      lv_group_add_obj(g, objects.settings_min_volt_ta);
+            if (objects.settings_cos_phi_ta)       lv_group_add_obj(g, objects.settings_cos_phi_ta);
+            if (objects.settings_nom_volt_ta)      lv_group_add_obj(g, objects.settings_nom_volt_ta);
+            if (objects.settings_nom_freq_ta)      lv_group_add_obj(g, objects.settings_nom_freq_ta);
+            if (objects.settings_apply_btn)         lv_group_add_obj(g, objects.settings_apply_btn);
+            if (objects.settings_reset_btn)         lv_group_add_obj(g, objects.settings_reset_btn);
+            
+            // Focus the first element (battery count textarea)
+            if (objects.settings_battery_count_ta) {
+                lv_group_focus_obj(objects.settings_battery_count_ta);
+            }
+            app_log_event("Navigation mode: SETTINGS TAB ELEMENTS");
+        } else {
+            // Other tabs are read-only telemetry tabs, so return to menu mode
+            set_navigation_mode(NAV_MODE_MENU);
+        }
+    }
+}
+
+static void global_navigation_key_cb(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if (code == LV_EVENT_KEY) {
+        uint32_t key = lv_event_get_key(e);
+        if (g_nav_mode == NAV_MODE_MENU) {
+            if (key == LV_KEY_RIGHT) {
+                // If System Settings is active, go into the tab elements
+                if (objects.tabview && lv_tabview_get_tab_act(objects.tabview) == 6) {
+                    lv_event_stop_processing(e);
+                    set_navigation_mode(NAV_MODE_TAB);
+                }
+            }
+        } else if (g_nav_mode == NAV_MODE_TAB) {
+            if (key == LV_KEY_LEFT) {
+                // Return to main menu
+                lv_event_stop_processing(e);
+                set_navigation_mode(NAV_MODE_MENU);
+            }
+        }
+    }
+}
+
 /* Login State Variables */
 static char current_username[32] = "Guest";
 static uint8_t current_access_level = ACCESS_LEVEL_GUEST;
 
-static lv_obj_t *login_btn = NULL;
 static lv_obj_t *login_modal_overlay = NULL;
 static lv_obj_t *login_modal = NULL;
 static lv_obj_t *login_username_dropdown = NULL;
@@ -140,6 +425,7 @@ static lv_group_t *prev_group = NULL;
 
 /* Pinpad state — now uses static EEZ-generated objects; no dynamic widget creation */
 static lv_group_t *pinpad_group = NULL;
+static lv_group_t *pinpad_prev_group = NULL;
 static lv_obj_t  *pinpad_target_ta = NULL;
 static bool       pinpad_visible = false;
 static uint32_t   last_pinpad_hide_time = 0;
@@ -254,12 +540,15 @@ void action_signin_clicked(lv_event_t *e)
         app_set_login_state(current_username, current_access_level);
 
         // Update UI status label color
-        if (current_access_level == ACCESS_LEVEL_ADMIN) {
-            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0xf43f5e), 0); // rose-500
-        } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
-            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x3b82f6), 0); // blue-500
-        } else {
-            lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x10b981), 0); // emerald-500
+        lv_obj_t *user_lbl = get_login_user_label();
+        if (user_lbl) {
+            if (current_access_level == ACCESS_LEVEL_ADMIN) {
+                lv_obj_set_style_text_color(user_lbl, lv_color_hex(0xf43f5e), 0); // rose-500
+            } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
+                lv_obj_set_style_text_color(user_lbl, lv_color_hex(0x3b82f6), 0); // blue-500
+            } else {
+                lv_obj_set_style_text_color(user_lbl, lv_color_hex(0x10b981), 0); // emerald-500
+            }
         }
         update_login_status_translations((lang_t)g_current_language);
 
@@ -294,17 +583,16 @@ void action_pinpad_btn_pressed(lv_event_t *e)
     lv_obj_t *ta  = pinpad_target_ta;
     if (!ta) return;
 
-    /* Find the label child to read the button text */
-    lv_obj_t *lbl = lv_obj_get_child(btn, 0);
-    if (!lbl) return;
-    const char *txt = lv_label_get_text(lbl);
-    if (!txt) return;
-
-    if (strcmp(txt, "CLR") == 0) {
+    if (btn == objects.pinpad_btn_clear) {
         lv_textarea_set_text(ta, "");
-    } else if (strcmp(txt, "BCK") == 0) {
+    } else if (btn == objects.pinpad_btn_back) {
         lv_textarea_del_char(ta);
     } else {
+        /* Find the label child to read the button text */
+        lv_obj_t *lbl = lv_obj_get_child(btn, 0);
+        if (!lbl) return;
+        const char *txt = lv_label_get_text(lbl);
+        if (!txt) return;
         lv_textarea_add_text(ta, txt);
     }
 }
@@ -334,6 +622,26 @@ static void show_pinpad(lv_obj_t *ta)
     pinpad_target_ta = ta;
     pinpad_visible   = true;
     last_pinpad_show_time = lv_tick_get();
+    pinpad_prev_group = lv_group_get_default();
+
+    // Show login_modal as it is the parent of pinpad_panel
+    if (objects.login_modal) {
+        lv_obj_clear_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+        
+        // Hide the sign-in card if we're inputting settings values
+        if (ta != objects.login_password_ta && ta != login_password_ta) {
+            if (objects.login_card) {
+                lv_obj_add_flag(objects.login_card, LV_OBJ_FLAG_HIDDEN);
+            }
+            // Keep background overlay light so operator can see the settings screen behind it
+            lv_obj_set_style_bg_opa(objects.login_modal, 50, LV_PART_MAIN | LV_STATE_DEFAULT);
+        } else {
+            if (objects.login_card) {
+                lv_obj_clear_flag(objects.login_card, LV_OBJ_FLAG_HIDDEN);
+            }
+            lv_obj_set_style_bg_opa(objects.login_modal, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
+        }
+    }
 
     lv_obj_clear_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
 
@@ -372,27 +680,49 @@ static void hide_pinpad(void)
 
     last_pinpad_hide_time = lv_tick_get();
     pinpad_visible = false;
+    lv_obj_t *target = pinpad_target_ta;
     pinpad_target_ta = NULL;
 
     if (objects.pinpad_panel) {
         lv_obj_add_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
     }
 
-    /* Restore input device focus to the modal group */
+    // Hide or restore login_modal depending on context
+    if (objects.login_modal) {
+        if (!modal_group) {
+            // Re-hide login_modal overlay if we were editing settings
+            lv_obj_add_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+        } else {
+            // Restore login card visibility
+            if (objects.login_card) {
+                lv_obj_clear_flag(objects.login_card, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+    }
+
+    /* Restore input device focus to the previous active group */
     if (pinpad_group) {
+        lv_group_t *restore_group = modal_group ? modal_group : pinpad_prev_group;
         lv_indev_t *indev = lv_indev_get_next(NULL);
         while (indev) {
             if (lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD ||
                 lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
-                lv_indev_set_group(indev, modal_group);
+                lv_indev_set_group(indev, restore_group);
             }
             indev = lv_indev_get_next(indev);
         }
-        lv_group_set_default(modal_group);
+        lv_group_set_default(restore_group);
 
-        /* Re-focus the password textarea */
-        lv_obj_t *ta_focus = objects.login_password_ta ? objects.login_password_ta : login_password_ta;
-        if (ta_focus) lv_group_focus_obj(ta_focus);
+        if (modal_group) {
+            /* Re-focus the password textarea */
+            lv_obj_t *ta_focus = objects.login_password_ta ? objects.login_password_ta : login_password_ta;
+            if (ta_focus) lv_group_focus_obj(ta_focus);
+        } else {
+            /* Re-focus the settings textarea that was being edited */
+            if (target && restore_group) {
+                lv_group_focus_obj(target);
+            }
+        }
 
         lv_group_del(pinpad_group);
         pinpad_group = NULL;
@@ -434,7 +764,10 @@ void action_login_button_clicked(lv_event_t *e)
         app_set_login_state(current_username, current_access_level);
 
         // Update UI
-        lv_obj_set_style_text_color(objects.obj0, lv_color_hex(0x94a3b8), 0);
+        lv_obj_t *user_lbl = get_login_user_label();
+        if (user_lbl) {
+            lv_obj_set_style_text_color(user_lbl, lv_color_hex(0x94a3b8), 0);
+        }
         update_login_status_translations((lang_t)g_current_language);
 
         app_log_event("User logged out");
@@ -635,6 +968,65 @@ void app_ui_init(void)
         lv_obj_add_event_cb(objects.login_password_ta, password_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
     }
 
+    /* Configure settings textareas as single line and clear placeholders to prevent showing default greyed-out values */
+    if (objects.settings_battery_count_ta) {
+        lv_textarea_set_one_line(objects.settings_battery_count_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_battery_count_ta, "");
+    }
+    if (objects.settings_pv_count_ta) {
+        lv_textarea_set_one_line(objects.settings_pv_count_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_pv_count_ta, "");
+    }
+    if (objects.settings_max_import_ta) {
+        lv_textarea_set_one_line(objects.settings_max_import_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_max_import_ta, "");
+    }
+    if (objects.settings_backup_soc_ta) {
+        lv_textarea_set_one_line(objects.settings_backup_soc_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_backup_soc_ta, "");
+    }
+    if (objects.settings_max_volt_ta) {
+        lv_textarea_set_one_line(objects.settings_max_volt_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_max_volt_ta, "");
+    }
+    if (objects.settings_min_volt_ta) {
+        lv_textarea_set_one_line(objects.settings_min_volt_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_min_volt_ta, "");
+    }
+    if (objects.settings_cos_phi_ta) {
+        lv_textarea_set_one_line(objects.settings_cos_phi_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_cos_phi_ta, "");
+    }
+    if (objects.settings_nom_volt_ta) {
+        lv_textarea_set_one_line(objects.settings_nom_volt_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_nom_volt_ta, "");
+    }
+    if (objects.settings_nom_freq_ta) {
+        lv_textarea_set_one_line(objects.settings_nom_freq_ta, true);
+        lv_textarea_set_placeholder_text(objects.settings_nom_freq_ta, "");
+    }
+
+    /* Register event callbacks on all settings textareas */
+    if (objects.settings_battery_count_ta) lv_obj_add_event_cb(objects.settings_battery_count_ta, settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_pv_count_ta)      lv_obj_add_event_cb(objects.settings_pv_count_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_max_import_ta)    lv_obj_add_event_cb(objects.settings_max_import_ta,    settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_backup_soc_ta)    lv_obj_add_event_cb(objects.settings_backup_soc_ta,    settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_max_volt_ta)      lv_obj_add_event_cb(objects.settings_max_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_min_volt_ta)      lv_obj_add_event_cb(objects.settings_min_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_cos_phi_ta)       lv_obj_add_event_cb(objects.settings_cos_phi_ta,       settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_nom_volt_ta)      lv_obj_add_event_cb(objects.settings_nom_volt_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+    if (objects.settings_nom_freq_ta)      lv_obj_add_event_cb(objects.settings_nom_freq_ta,      settings_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
+
+    /* Register focus sync on settings buttons */
+    if (objects.settings_apply_btn) {
+        register_focus_sync(objects.settings_apply_btn);
+        lv_obj_add_style(objects.settings_apply_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+    }
+    if (objects.settings_reset_btn) {
+        register_focus_sync(objects.settings_reset_btn);
+        lv_obj_add_style(objects.settings_reset_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+    }
+
     /* Register 2D navigation callback on all pinpad buttons */
     lv_obj_t *pinpad_btns[] = {
         objects.pinpad_btn_1,   objects.pinpad_btn_2,   objects.pinpad_btn_3,
@@ -649,24 +1041,37 @@ void app_ui_init(void)
         }
     }
 
-    /* Add nav buttons to the default LVGL group so keyboard can navigate them */
-    if (g) {
-        lv_group_add_obj(g, objects.dashboard_button);
-        lv_group_add_obj(g, objects.view_1_button);
-        lv_group_add_obj(g, objects.view_2_button);
-        lv_group_add_obj(g, objects.gen_clusters_button);
-        lv_group_add_obj(g, objects.load_management_button);
-        lv_group_add_obj(g, objects.diagnostics_button);
-        lv_group_add_obj(g, objects.sys_settings_button);
-        lv_group_add_obj(g, login_btn);
-        if (objects.lang_selector_button) {
-            lv_group_add_obj(g, objects.lang_selector_button);
-        }
+    /* Register navigation key callback on main menu and settings widgets */
+    if (objects.dashboard_button)       lv_obj_add_event_cb(objects.dashboard_button,       global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.view_1_button)          lv_obj_add_event_cb(objects.view_1_button,          global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.view_2_button)          lv_obj_add_event_cb(objects.view_2_button,          global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.gen_clusters_button)    lv_obj_add_event_cb(objects.gen_clusters_button,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.load_management_button) lv_obj_add_event_cb(objects.load_management_button, global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.diagnostics_button)     lv_obj_add_event_cb(objects.diagnostics_button,     global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.sys_settings_button)    lv_obj_add_event_cb(objects.sys_settings_button,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (login_btn)                      lv_obj_add_event_cb(login_btn,                      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.lang_selector_button)   lv_obj_add_event_cb(objects.lang_selector_button,   global_navigation_key_cb, LV_EVENT_KEY, NULL);
 
-        /* Set initial focus to Dashboard — fires LV_EVENT_FOCUSED,
-         * which propagates the focused state to child labels via btn_focus_sync_cb */
-        lv_group_focus_obj(objects.dashboard_button);
+    if (objects.settings_battery_count_ta) lv_obj_add_event_cb(objects.settings_battery_count_ta, global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_pv_count_ta)      lv_obj_add_event_cb(objects.settings_pv_count_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_max_import_ta)    lv_obj_add_event_cb(objects.settings_max_import_ta,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_backup_soc_ta)    lv_obj_add_event_cb(objects.settings_backup_soc_ta,    global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_max_volt_ta)      lv_obj_add_event_cb(objects.settings_max_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_min_volt_ta)      lv_obj_add_event_cb(objects.settings_min_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_cos_phi_ta)       lv_obj_add_event_cb(objects.settings_cos_phi_ta,       global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_nom_volt_ta)      lv_obj_add_event_cb(objects.settings_nom_volt_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_nom_freq_ta)      lv_obj_add_event_cb(objects.settings_nom_freq_ta,      global_navigation_key_cb, LV_EVENT_KEY, NULL);
+
+    if (objects.settings_apply_btn)         lv_obj_add_event_cb(objects.settings_apply_btn,         global_navigation_key_cb, LV_EVENT_KEY, NULL);
+    if (objects.settings_reset_btn)         lv_obj_add_event_cb(objects.settings_reset_btn,         global_navigation_key_cb, LV_EVENT_KEY, NULL);
+
+    /* Initialize navigation mode to Main Menu Mode */
+    if (g) {
+        set_navigation_mode(NAV_MODE_MENU);
     }
+
+    /* Load initial configuration values from shared memory on startup */
+    action_settings_reset_clicked(NULL);
 }
 
 bool is_pinpad_focused(void)
@@ -714,15 +1119,16 @@ void update_login_status_translations(lang_t lang) {
             }
         }
     } else {
-        // EEZ-designed button: child 0 is icon "1", child 1 (objects.obj0) is username/role
+        // EEZ-designed button: child 0 is icon "1", child 1 is username/role
         if (objects.login_btn) {
             lv_obj_t *icon_lbl = lv_obj_get_child(objects.login_btn, 0);
             if (icon_lbl) {
                 lv_label_set_text(icon_lbl, "1");
             }
-        }
-        if (objects.obj0) {
-            lv_label_set_text(objects.obj0, label_buf);
+            lv_obj_t *user_lbl = lv_obj_get_child(objects.login_btn, 1);
+            if (user_lbl) {
+                lv_label_set_text(user_lbl, label_buf);
+            }
         }
     }
 }

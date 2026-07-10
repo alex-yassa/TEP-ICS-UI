@@ -22,6 +22,24 @@ extern const char *get_var_header_date();
 extern void set_var_header_date(const char *value);
 extern const char *get_var_header_time();
 extern void set_var_header_time(const char *value);
+extern int32_t get_var_battery_clusters_count();
+extern void set_var_battery_clusters_count(int32_t value);
+extern int32_t get_var_pv_clusters_count();
+extern void set_var_pv_clusters_count(int32_t value);
+extern double get_var_cfg_grid_max_p_import();
+extern void set_var_cfg_grid_max_p_import(double value);
+extern double get_var_cfg_bat_backup_soc();
+extern void set_var_cfg_bat_backup_soc(double value);
+extern double get_var_cfg_bat_max_volt();
+extern void set_var_cfg_bat_max_volt(double value);
+extern double get_var_cfg_bat_min_volt();
+extern void set_var_cfg_bat_min_volt(double value);
+extern double get_var_cfg_target_cos_phi();
+extern void set_var_cfg_target_cos_phi(double value);
+extern int32_t get_var_cfg_grid_nom_volt();
+extern void set_var_cfg_grid_nom_volt(int32_t value);
+extern int32_t get_var_cfg_grid_nom_freq();
+extern void set_var_cfg_grid_nom_freq(int32_t value);
 
 #ifdef __cplusplus
 }

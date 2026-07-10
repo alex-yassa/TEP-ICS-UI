@@ -1,0 +1,166 @@
+{
+    "sn": "10000/25",
+    "stamp_time": 1434236867,
+    "collection_time": 1434236867,
+    "device": "BSI1000",
+    "IP": "10.100.100.10",
+    "PCB": "V0",
+    "collection_data": [
+        {
+            "Name": "GridP1",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "GridP2",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "GridP3",
+            "Value": 0,
+            "Unit": "kW.d1"
+        },
+        {
+            "Name": "GridP1PP",
+            "Value": 0,
+            "Unit": "kW.d0"
+        },
+        {
+            "Name": "GridP2PP",
+            "Value": 0,
+            "Unit": "kW.d0"
+        },
+        {
+            "Name": "GridP3PP",
+            "Value": 0,
+            "Unit": "kW.d0"
+        },
+        {
+            "Name": "GridQ1",
+            "Value": 14,
+            "Unit": "kvar.d1"
+        },
+        {
+            "Name": "GridQ2",
+            "Value": 14,
+            "Unit": "kvar.d1"
+        },
+        {
+            "Name": "GridQ3",
+            "Value": 14,
+            "Unit": "kvar.d1"
+        },
+        {
+            "Name": "GridQ1PP",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridQ2PP",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridQ3PP",
+            "Value": 0,
+            "Unit": "var.d0"
+        },
+        {
+            "Name": "GridI1",
+            "Value": 0,
+            "Unit": "A.d0"
+        },
+        {
+            "Name": "GridI2",
+            "Value": 0,
+            "Unit": "A.d0"
+        },
+        {
+            "Name": "GridI3",
+            "Value": 0,
+            "Unit": "A.d0"
+        },
+        {
+            "Name": "GridI1PP",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "GridI2PP",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "GridI3PP",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "DCITemp",
+            "Value": 24,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "AcRTemp",
+            "Value": 25,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "BattU",
+            "Value": 0,
+            "Unit": "V.d1"
+        },
+        {
+            "Name": "BattI",
+            "Value": 0,
+            "Unit": "A.d1"
+        },
+        {
+            "Name": "SoCBatt",
+            "Value": 0,
+            "Unit": "%.d0"
+        },
+        {
+            "Name": "BattTemp",
+            "Value": 0,
+            "Unit": "C.d0"
+        },
+        {
+            "Name": "Status",
+            "Value": 4194304,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeVerSt",
+            "Value": 185,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeRevSt",
+            "Value": 120,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeVerDCI",
+            "Value": 1414,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeRevDCI",
+            "Value": 11,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeVerACR",
+            "Value": 192,
+            "Unit": "-"
+        },
+        {
+            "Name": "CodeRevACR",
+            "Value": 22,
+            "Unit": "-"
+        }
+    ],
+    "stamp_hash": "0"
+}

@@ -24,7 +24,20 @@ static const translation_entry_t translation_table[] = {
     { "Gen Clusters View",      { "Widok generatorów",          "Gen Clusters View",      "Перегляд генерації" } },
     { "Load Management View",   { "Widok zarządzania obc.",     "Load Management View",   "Керування навантаженням" } },
     { "Diagnostics View",       { "Widok diagnostyki",          "Diagnostics View",       "Діагностика" } },
-    { "Sys Settings View",      { "Widok ustawień systemowych", "Sys Settings View",      "Системні налаштування" } },
+    { "SYSTEM CONFIGURATION",   { "KONFIGURACJA SYSTEMU",       "SYSTEM CONFIGURATION",   "КОНФІГУРАЦІЯ СИСТЕМИ" } },
+
+    { "Battery Clusters Count (Max 2)",         { "Liczba modułów baterii (Maks 2)",        "Battery Clusters Count (Max 2)",         "Кількість батарейних кластерів (Макс 2)" } },
+    { "PV Clusters Count (Max 2)",              { "Liczba modułów PV (Maks 2)",             "PV Clusters Count (Max 2)",              "Кількість фотоелектричних кластерів (Макс 2)" } },
+    { "Peak Shaving Import Limit (kW)",         { "Limit importu mocy szczytowej (kW)",     "Peak Shaving Import Limit (kW)",         "Ліміт зрізання піків споживання (кВт)" } },
+    { "Backup Battery SoC Threshold (%)",       { "Próg SoC baterii rezerwowej (%)",        "Backup Battery SoC Threshold (%)",       "Порогове значення заряду АКБ (%)" } },
+    { "Battery Max Charge Voltage (V)",         { "Maks. napięcie ładowania baterii (V)",   "Battery Max Charge Voltage (V)",         "Макс. напруга заряду АКБ (В)" } },
+    { "Battery Min Discharge Voltage (V)",       { "Min. napięcie rozładowania baterii (V)", "Battery Min Discharge Voltage (V)",       "Мін. напруга розряду АКБ (В)" } },
+    { "STATCOM Target Power Factor (cos phi)",  { "Docelowy współczynnik mocy STATCOM",     "STATCOM Target Power Factor (cos phi)",  "Цільовий коефіцієнт потужності STATCOM" } },
+    { "Nominal Grid Voltage (V)",               { "Nominalne napięcie sieci (V)",           "Nominal Grid Voltage (V)",               "Номінальна напруга мережі (В)" } },
+    { "Nominal Grid Frequency (Hz)",            { "Nominalna częstotliwość sieci (Hz)",     "Nominal Grid Frequency (Hz)",            "Номінальна частота мережі (Гц)" } },
+
+    { "Apply",             { "Zastosuj",              "Apply",             "Застосувати" } },
+    { "Reset Changes",     { "Resetuj zmiany",        "Reset Changes",     "Скинути zmiany" } },
 
     { "USER SIGN IN",      { "LOGOWANIE UŻYTKOWNIKA", "USER SIGN IN",      "ВХІД КОРИСТУВАЧА" } },
     { "Enter Password",    { "Wpisz hasło",           "Enter Password",    "Введіть пароль" } },
@@ -80,7 +93,22 @@ void ui_translate_update(void) {
     if (objects.label_fourth_view) lv_label_set_text(objects.label_fourth_view, translate("Gen Clusters View", lang));
     if (objects.label_fifth_view) lv_label_set_text(objects.label_fifth_view, translate("Load Management View", lang));
     if (objects.label_sixth_view) lv_label_set_text(objects.label_sixth_view, translate("Diagnostics View", lang));
-    if (objects.label_seventh_view) lv_label_set_text(objects.label_seventh_view, translate("Sys Settings View", lang));
+    if (objects.label_settings_title) lv_label_set_text(objects.label_settings_title, translate("SYSTEM CONFIGURATION", lang));
+
+    // Settings rows
+    if (objects.label_row_0) lv_label_set_text(objects.label_row_0, translate("Battery Clusters Count (Max 2)", lang));
+    if (objects.label_row_1) lv_label_set_text(objects.label_row_1, translate("PV Clusters Count (Max 2)", lang));
+    if (objects.label_row_2) lv_label_set_text(objects.label_row_2, translate("Peak Shaving Import Limit (kW)", lang));
+    if (objects.label_row_3) lv_label_set_text(objects.label_row_3, translate("Backup Battery SoC Threshold (%)", lang));
+    if (objects.label_row_4) lv_label_set_text(objects.label_row_4, translate("Battery Max Charge Voltage (V)", lang));
+    if (objects.label_row_5) lv_label_set_text(objects.label_row_5, translate("Battery Min Discharge Voltage (V)", lang));
+    if (objects.label_row_6) lv_label_set_text(objects.label_row_6, translate("STATCOM Target Power Factor (cos phi)", lang));
+    if (objects.label_row_7) lv_label_set_text(objects.label_row_7, translate("Nominal Grid Voltage (V)", lang));
+    if (objects.label_row_8) lv_label_set_text(objects.label_row_8, translate("Nominal Grid Frequency (Hz)", lang));
+
+    // Settings buttons
+    if (objects.settings_apply_btn_label) lv_label_set_text(objects.settings_apply_btn_label, translate("Apply", lang));
+    if (objects.settings_reset_btn_label) lv_label_set_text(objects.settings_reset_btn_label, translate("Reset Changes", lang));
 
     // 3. Login modal texts
     if (objects.login_title_label) lv_label_set_text(objects.login_title_label, translate("USER SIGN IN", lang));

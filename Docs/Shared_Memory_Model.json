@@ -1,0 +1,627 @@
+{
+  "model_name": "AC-Coupled Microgrid Central EMS Shared Memory Model",
+  "version": "1.2.0",
+  "base_address": "0x30040000",
+  "semaphore_id": 1,
+  "hsem_name": "HSEM_ID_SHARED_MEM",
+  "struct_name": "SharedBuffer_t",
+  "constants": {
+    "MAX_BATTERY_CLUSTERS": 2,
+    "MAX_PV_CLUSTERS": 2
+  },
+  "types": {
+    "BatteryStorageCluster_t": {
+      "description": "Unified battery bank and BESS inverter cluster telemetry structure aligned with BSI1000 registers",
+      "size_bytes": 80,
+      "fields": [
+        {
+          "name": "grid_p",
+          "type": "float[3]",
+          "unit": "kW",
+          "hardware_mapping": "GridP1, GridP2, GridP3",
+          "description": "BSI AC active power per phase. Positive=discharge, Negative=charge."
+        },
+        {
+          "name": "grid_q",
+          "type": "float[3]",
+          "unit": "kVAR",
+          "hardware_mapping": "GridQ1, GridQ2, GridQ3",
+          "description": "BSI AC reactive power per phase injected/absorbed"
+        },
+        {
+          "name": "grid_i",
+          "type": "float[3]",
+          "unit": "A",
+          "hardware_mapping": "GridI1, GridI2, GridI3",
+          "description": "BSI AC current per phase"
+        },
+        {
+          "name": "batt_u",
+          "type": "float",
+          "unit": "V",
+          "hardware_mapping": "BattU",
+          "description": "Battery pack DC voltage"
+        },
+        {
+          "name": "batt_i",
+          "type": "float",
+          "unit": "A",
+          "hardware_mapping": "BattI",
+          "description": "Battery pack DC current. Positive=discharge, Negative=charge."
+        },
+        {
+          "name": "batt_soc",
+          "type": "float",
+          "unit": "%",
+          "hardware_mapping": "SoCBatt",
+          "description": "Battery pack State of Charge"
+        },
+        {
+          "name": "batt_soh",
+          "type": "float",
+          "unit": "%",
+          "description": "Battery pack State of Health from BMS CANbus"
+        },
+        {
+          "name": "batt_temp",
+          "type": "float",
+          "unit": "°C",
+          "hardware_mapping": "BattTemp",
+          "description": "Battery pack average cell temperature"
+        },
+        {
+          "name": "batt_alarm",
+          "type": "uint32_t",
+          "unit": "bits",
+          "description": "Battery pack BMS alarms bitfield"
+        },
+        {
+          "name": "batt_fault",
+          "type": "uint32_t",
+          "unit": "bits",
+          "description": "Battery pack BMS faults bitfield"
+        },
+        {
+          "name": "dci_temp",
+          "type": "float",
+          "unit": "°C",
+          "hardware_mapping": "DCITemp",
+          "description": "BSI DCI board heatsink temperature"
+        },
+        {
+          "name": "acr_temp",
+          "type": "float",
+          "unit": "°C",
+          "hardware_mapping": "AcRTemp",
+          "description": "BSI ACR board heatsink temperature"
+        },
+        {
+          "name": "bsi_status_flags",
+          "type": "uint32_t",
+          "unit": "bits",
+          "hardware_mapping": "Status",
+          "description": "BSI1000 internal status register"
+        },
+        {
+          "name": "bsi_st",
+          "type": "uint8_t",
+          "unit": "enum",
+          "description": "BSI inverter operational state",
+          "enum_values": {
+            "0": "BSI_STATE_OFFLINE",
+            "1": "BSI_STATE_GRID_FOLLOW_IDLE",
+            "2": "BSI_STATE_GRID_FOLLOW_CHARGE",
+            "3": "BSI_STATE_GRID_FOLLOW_DISCHARGE",
+            "4": "BSI_STATE_GRID_FORMING",
+            "5": "BSI_STATE_STATCOM",
+            "6": "BSI_STATE_FAULT"
+          }
+        }
+      ]
+    },
+    "PvGenerationCluster_t": {
+      "description": "Unified PV array and grid-tied solar inverter telemetry structure aligned with PS300-PV registers",
+      "size_bytes": 112,
+      "fields": [
+        {
+          "name": "inp_u",
+          "type": "float[2]",
+          "unit": "V",
+          "hardware_mapping": "InpU1, InpU2",
+          "description": "PV DC input voltages per tracker"
+        },
+        {
+          "name": "inp_i",
+          "type": "float[2]",
+          "unit": "A",
+          "hardware_mapping": "InpI1, InpI2",
+          "description": "PV DC input currents per tracker"
+        },
+        {
+          "name": "inp_p",
+          "type": "float[2]",
+          "unit": "kW",
+          "hardware_mapping": "InpP1, InpP2",
+          "description": "PV DC input power per tracker"
+        },
+        {
+          "name": "grid_u",
+          "type": "float[3]",
+          "unit": "V",
+          "hardware_mapping": "GridU1, GridU2, GridU3",
+          "description": "PS300 AC output phase voltages"
+        },
+        {
+          "name": "grid_i",
+          "type": "float[3]",
+          "unit": "A",
+          "hardware_mapping": "GridI1, GridI2, GridI3",
+          "description": "PS300 AC output phase currents"
+        },
+        {
+          "name": "grid_p",
+          "type": "float[3]",
+          "unit": "kW",
+          "hardware_mapping": "GridP1, GridP2, GridP3",
+          "description": "PS300 AC output active power per phase"
+        },
+        {
+          "name": "grid_q",
+          "type": "float[3]",
+          "unit": "kVAR",
+          "hardware_mapping": "GridQ1, GridQ2, GridQ3",
+          "description": "PS300 AC output reactive power per phase"
+        },
+        {
+          "name": "grid_p_total",
+          "type": "float",
+          "unit": "kW",
+          "hardware_mapping": "GridP",
+          "description": "PS300 AC output total active power"
+        },
+        {
+          "name": "grid_q_total",
+          "type": "float",
+          "unit": "kVAR",
+          "hardware_mapping": "GridQ",
+          "description": "PS300 AC output total reactive power"
+        },
+        {
+          "name": "grid_freq",
+          "type": "float",
+          "unit": "Hz",
+          "hardware_mapping": "GridFreq",
+          "description": "PS300 AC output frequency"
+        },
+        {
+          "name": "inv_temp",
+          "type": "float",
+          "unit": "°C",
+          "hardware_mapping": "InvTemp",
+          "description": "PS300 internal inverter temperature"
+        },
+        {
+          "name": "r_izo",
+          "type": "float",
+          "unit": "kΩ",
+          "hardware_mapping": "RIzo",
+          "description": "PS300 isolation resistance"
+        },
+        {
+          "name": "prod_en",
+          "type": "float",
+          "unit": "kWh",
+          "hardware_mapping": "ProdEn",
+          "description": "PS300 total generated energy"
+        },
+        {
+          "name": "runtime",
+          "type": "float",
+          "unit": "h",
+          "hardware_mapping": "RunTime",
+          "description": "PS300 total running hours"
+        },
+        {
+          "name": "flags1",
+          "type": "uint32_t",
+          "unit": "bits",
+          "hardware_mapping": "Flags1",
+          "description": "PS300 status flags register 1"
+        },
+        {
+          "name": "flags2",
+          "type": "uint32_t",
+          "unit": "bits",
+          "hardware_mapping": "Flags2",
+          "description": "PS300 status flags register 2"
+        },
+        {
+          "name": "pv_st",
+          "type": "uint8_t",
+          "unit": "enum",
+          "description": "PS300 inverter operational state",
+          "enum_values": {
+            "0": "PV_STATE_OFFLINE",
+            "1": "PV_STATE_STANDBY",
+            "2": "PV_STATE_GRID_TIED_MPPT",
+            "3": "PV_STATE_DERATED",
+            "4": "PV_STATE_FAULT"
+          }
+        }
+      ]
+    }
+  },
+  "fields": [
+    {
+      "name": "rtc_hours",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "hours",
+      "description": "Current hour (0-23) from RTC"
+    },
+    {
+      "name": "rtc_minutes",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "minutes",
+      "description": "Current minute (0-59) from RTC"
+    },
+    {
+      "name": "rtc_seconds",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "seconds",
+      "description": "Current second (0-59) from RTC"
+    },
+    {
+      "name": "rtc_day",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "days",
+      "description": "Day of month (1-31) from RTC"
+    },
+    {
+      "name": "rtc_month",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "months",
+      "description": "Month (1-12) from RTC"
+    },
+    {
+      "name": "rtc_year",
+      "type": "uint16_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "years",
+      "description": "Full year (e.g. 2026) from RTC"
+    },
+    {
+      "name": "ems_op_mode",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "enum",
+      "description": "Central EMS operational mode",
+      "enum_values": {
+        "0": "EMS_MODE_INIT",
+        "1": "EMS_MODE_ON_GRID_AUTO",
+        "2": "EMS_MODE_ON_GRID_PEAK_SHAVING",
+        "3": "EMS_MODE_ON_GRID_TOU_ARBITRAGE",
+        "4": "EMS_MODE_ISLAND_BACKUP",
+        "5": "EMS_MODE_GRID_RESYNC",
+        "6": "EMS_MODE_EMERGENCY_STOP"
+      }
+    },
+    {
+      "name": "ems_island_state",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "enum",
+      "description": "EMS islanding phase state machine",
+      "enum_values": {
+        "0": "ISLAND_STATE_GRID_CONNECTED",
+        "1": "ISLAND_STATE_OUTAGE_DETECTED",
+        "2": "ISLAND_STATE_BLACK_START",
+        "3": "ISLAND_STATE_STABILIZED",
+        "4": "ISLAND_STATE_LOAD_SHEDDING",
+        "5": "ISLAND_STATE_RESYNCING"
+      }
+    },
+    {
+      "name": "ems_temp",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "°C",
+      "description": "EMS controller temperature"
+    },
+    {
+      "name": "active_fault_word",
+      "type": "uint32_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "bits",
+      "description": "System-wide fault bitfield"
+    },
+    {
+      "name": "grid_volt_ln",
+      "type": "float[3]",
+      "flow": "CM7_TO_CM4",
+      "unit": "V",
+      "description": "Grid phase voltages L1, L2, L3"
+    },
+    {
+      "name": "grid_curr",
+      "type": "float[3]",
+      "flow": "CM7_TO_CM4",
+      "unit": "A",
+      "description": "Grid phase currents L1, L2, L3"
+    },
+    {
+      "name": "grid_act_p",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kW",
+      "description": "Grid boundary total active power. Positive=import, Negative=export."
+    },
+    {
+      "name": "grid_react_q",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kVAR",
+      "description": "Grid boundary total reactive power"
+    },
+    {
+      "name": "grid_freq",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "Hz",
+      "description": "Grid boundary utility frequency"
+    },
+    {
+      "name": "grid_cos_phi",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "-",
+      "description": "Grid boundary displacement power factor"
+    },
+    {
+      "name": "contactor_grid_st",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "enum",
+      "description": "Actual state of Grid Contactor",
+      "enum_values": {
+        "0": "OPEN",
+        "1": "CLOSED",
+        "2": "FAULT"
+      }
+    },
+    {
+      "name": "contactor_grid_cmd",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "enum",
+      "description": "Command override state of Grid Contactor",
+      "enum_values": {
+        "0": "OPEN_COMMAND",
+        "1": "CLOSE_COMMAND"
+      }
+    },
+    {
+      "name": "load_off_act_p",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kW",
+      "description": "Office active power consumption"
+    },
+    {
+      "name": "load_off_react_q",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kVAR",
+      "description": "Office reactive power consumption"
+    },
+    {
+      "name": "contactor_off_st",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "enum",
+      "description": "Office Contactor physical state",
+      "enum_values": {
+        "0": "OPEN",
+        "1": "CLOSED",
+        "2": "FAULT"
+      }
+    },
+    {
+      "name": "contactor_off_cmd",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "enum",
+      "description": "Office Contactor command state",
+      "enum_values": {
+        "0": "OPEN_COMMAND",
+        "1": "CLOSE_COMMAND"
+      }
+    },
+    {
+      "name": "load_lab_act_p",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kW",
+      "description": "Lab active power consumption"
+    },
+    {
+      "name": "load_lab_react_q",
+      "type": "float",
+      "flow": "CM7_TO_CM4",
+      "unit": "kVAR",
+      "description": "Lab reactive power consumption"
+    },
+    {
+      "name": "contactor_lab_st",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "enum",
+      "description": "Lab Contactor physical state",
+      "enum_values": {
+        "0": "OPEN",
+        "1": "CLOSED",
+        "2": "FAULT"
+      }
+    },
+    {
+      "name": "contactor_lab_cmd",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "enum",
+      "description": "Lab Contactor command state",
+      "enum_values": {
+        "0": "OPEN_COMMAND",
+        "1": "CLOSE_COMMAND"
+      }
+    },
+    {
+      "name": "bat_clusters",
+      "type": "BatteryStorageCluster_t[MAX_BATTERY_CLUSTERS]",
+      "flow": "CM7_TO_CM4",
+      "description": "Array of battery storage and BESS inverter cluster units"
+    },
+    {
+      "name": "pv_clusters",
+      "type": "PvGenerationCluster_t[MAX_PV_CLUSTERS]",
+      "flow": "CM7_TO_CM4",
+      "description": "Array of PV generation and solar inverter cluster units"
+    },
+    {
+      "name": "cfg_grid_max_p_import",
+      "type": "float",
+      "flow": "CM4_TO_CM7",
+      "unit": "kW",
+      "description": "Active power import peak limit threshold"
+    },
+    {
+      "name": "cfg_bat_backup_soc",
+      "type": "float",
+      "flow": "CM4_TO_CM7",
+      "unit": "%",
+      "description": "Backup SoC threshold to start load shedding off-grid"
+    },
+    {
+      "name": "cfg_bat_max_volt",
+      "type": "float",
+      "flow": "CM4_TO_CM7",
+      "unit": "V",
+      "description": "Battery maximum charging voltage configuration"
+    },
+    {
+      "name": "cfg_bat_min_volt",
+      "type": "float",
+      "flow": "CM4_TO_CM7",
+      "unit": "V",
+      "description": "Battery minimum discharging voltage configuration"
+    },
+    {
+      "name": "cfg_target_cos_phi",
+      "type": "float",
+      "flow": "CM4_TO_CM7",
+      "unit": "-",
+      "description": "Target power factor for grid reactive power compensation"
+    },
+    {
+      "name": "cfg_grid_nom_volt",
+      "type": "uint16_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "V",
+      "description": "Grid nominal voltage (L-N or L-L)"
+    },
+    {
+      "name": "cfg_grid_nom_freq",
+      "type": "uint16_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "Hz",
+      "description": "Grid nominal frequency"
+    },
+    {
+      "name": "cfg_tou_chg_start_h",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "hour",
+      "description": "Time-of-Use charging window start hour"
+    },
+    {
+      "name": "cfg_tou_chg_start_m",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "minute",
+      "description": "Time-of-Use charging window start minute"
+    },
+    {
+      "name": "cfg_tou_chg_end_h",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "hour",
+      "description": "Time-of-Use charging window end hour"
+    },
+    {
+      "name": "cfg_tou_chg_end_m",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "minute",
+      "description": "Time-of-Use charging window end minute"
+    },
+    {
+      "name": "cfg_tou_disch_start_h",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "hour",
+      "description": "Time-of-Use discharging window start hour"
+    },
+    {
+      "name": "cfg_tou_disch_start_m",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "minute",
+      "description": "Time-of-Use discharging window start minute"
+    },
+    {
+      "name": "cfg_tou_disch_end_h",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "hour",
+      "description": "Time-of-Use discharging window end hour"
+    },
+    {
+      "name": "cfg_tou_disch_end_m",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "minute",
+      "description": "Time-of-Use discharging window end minute"
+    },
+    {
+      "name": "cm7_cpu_load",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "%",
+      "description": "Cortex-M7 core CPU utilization"
+    },
+    {
+      "name": "cm4_cpu_load",
+      "type": "uint8_t",
+      "flow": "CM7_TO_CM4",
+      "unit": "%",
+      "description": "Cortex-M4 core CPU utilization"
+    },
+    {
+      "name": "login_username",
+      "type": "char[32]",
+      "flow": "CM4_TO_CM7",
+      "unit": "text",
+      "description": "Username of currently logged-in user"
+    },
+    {
+      "name": "login_access_level",
+      "type": "uint8_t",
+      "flow": "CM4_TO_CM7",
+      "unit": "enum",
+      "description": "Access level of logged-in user (0=Guest, 1=Operator, 2=Admin)"
+    }
+  ]
+}

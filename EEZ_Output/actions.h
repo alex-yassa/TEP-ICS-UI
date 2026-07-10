@@ -21,6 +21,8 @@ extern void action_pinpad_ok_clicked(lv_event_t * e);
 extern void action_pinpad_cancel_clicked(lv_event_t * e);
 extern void action_pinpad_btn_pressed(lv_event_t * e);
 extern void action_lang_selector_button_clicked(lv_event_t * e);
+extern void action_settings_apply_clicked(lv_event_t * e);
+extern void action_settings_reset_clicked(lv_event_t * e);
 
 #ifdef __cplusplus
 }
