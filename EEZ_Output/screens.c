@@ -1862,7 +1862,7 @@ void create_screen_dashboard() {
                     // btn-left
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_left = obj;
-                    lv_obj_set_pos(obj, 48, 427);
+                    lv_obj_set_pos(obj, 752, 425);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1882,7 +1882,7 @@ void create_screen_dashboard() {
                     // btn-right
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_right = obj;
-                    lv_obj_set_pos(obj, 110, 427);
+                    lv_obj_set_pos(obj, 886, 423);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1902,7 +1902,7 @@ void create_screen_dashboard() {
                     // btn-up
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_up = obj;
-                    lv_obj_set_pos(obj, 173, 427);
+                    lv_obj_set_pos(obj, 821, 360);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1922,7 +1922,7 @@ void create_screen_dashboard() {
                     // btn-down
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_down = obj;
-                    lv_obj_set_pos(obj, 238, 427);
+                    lv_obj_set_pos(obj, 821, 488);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1942,7 +1942,7 @@ void create_screen_dashboard() {
                     // btn-backspace
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_backspace = obj;
-                    lv_obj_set_pos(obj, 303, 427);
+                    lv_obj_set_pos(obj, 817, 43);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1962,7 +1962,7 @@ void create_screen_dashboard() {
                     // btn-enter
                     lv_obj_t *obj = lv_btn_create(parent_obj);
                     objects.btn_enter = obj;
-                    lv_obj_set_pos(obj, 365, 427);
+                    lv_obj_set_pos(obj, 821, 425);
                     lv_obj_set_size(obj, 50, 50);
                     add_style_pinpad_btn(obj);
                     lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
@@ -1975,6 +1975,286 @@ void create_screen_dashboard() {
                             add_style_ico_custom(obj);
                             lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_label_set_text_static(obj, "Z");
+                        }
+                    }
+                }
+                {
+                    // btn-v_2
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_v_2 = obj;
+                    lv_obj_set_pos(obj, 818, 111);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "V2");
+                        }
+                    }
+                }
+                {
+                    // btn-v_3
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_v_3 = obj;
+                    lv_obj_set_pos(obj, 819, 168);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "V3");
+                        }
+                    }
+                }
+                {
+                    // btn-v_4
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_v_4 = obj;
+                    lv_obj_set_pos(obj, 820, 226);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "V4");
+                        }
+                    }
+                }
+                {
+                    // btn-v_5
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_v_5 = obj;
+                    lv_obj_set_pos(obj, 819, 287);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "V5");
+                        }
+                    }
+                }
+                {
+                    // btn-g_1
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_1 = obj;
+                    lv_obj_set_pos(obj, 8, 426);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G1");
+                        }
+                    }
+                }
+                {
+                    // btn-g_2
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_2 = obj;
+                    lv_obj_set_pos(obj, 72, 427);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G2");
+                        }
+                    }
+                }
+                {
+                    // btn-g_3
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_3 = obj;
+                    lv_obj_set_pos(obj, 133, 428);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G3");
+                        }
+                    }
+                }
+                {
+                    // btn-g_4
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_4 = obj;
+                    lv_obj_set_pos(obj, 195, 429);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G4");
+                        }
+                    }
+                }
+                {
+                    // btn-g_5
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_5 = obj;
+                    lv_obj_set_pos(obj, 258, 428);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G5");
+                        }
+                    }
+                }
+                {
+                    // btn-g_6
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_6 = obj;
+                    lv_obj_set_pos(obj, 343, 430);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G6");
+                        }
+                    }
+                }
+                {
+                    // btn-g_7
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_7 = obj;
+                    lv_obj_set_pos(obj, 403, 430);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G7");
+                        }
+                    }
+                }
+                {
+                    // btn-g_8
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_8 = obj;
+                    lv_obj_set_pos(obj, 465, 431);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G8");
+                        }
+                    }
+                }
+                {
+                    // btn-g_9
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_9 = obj;
+                    lv_obj_set_pos(obj, 525, 433);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G9");
+                        }
+                    }
+                }
+                {
+                    // btn-g_10
+                    lv_obj_t *obj = lv_btn_create(parent_obj);
+                    objects.btn_g_10 = obj;
+                    lv_obj_set_pos(obj, 586, 434);
+                    lv_obj_set_size(obj, 50, 50);
+                    add_style_pinpad_btn(obj);
+                    lv_obj_set_style_bg_color(obj, lv_color_hex(0x016800), LV_PART_MAIN | LV_STATE_PRESSED);
+                    {
+                        lv_obj_t *parent_obj = obj;
+                        {
+                            lv_obj_t *obj = lv_label_create(parent_obj);
+                            lv_obj_set_pos(obj, 0, 0);
+                            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                            add_style_pinpad_label(obj);
+                            lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_label_set_text_static(obj, "G10");
                         }
                     }
                 }

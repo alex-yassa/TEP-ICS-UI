@@ -154,39 +154,56 @@ int main(void) {
 static void MX_GPIO_Init(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* Enable GPIO Clocks for keypad (GPIOA, GPIOB, GPIOC) */
+  /* Enable GPIO Clocks for keypad (GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOK) */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOK_CLK_ENABLE();
 
-  /* Enable SYSCFG clock and close analog switches to route PA0_C / PA1_C to
-   * digital GPIO pads */
-  __HAL_RCC_SYSCFG_CLK_ENABLE();
-  HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA0, SYSCFG_SWITCH_PA0_CLOSE);
-  HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA1, SYSCFG_SWITCH_PA1_CLOSE);
-
-  /* Configure Strobe Outputs: PC6, PB0 (Initialize to LOW) */
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_RESET);
-
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-
-  GPIO_InitStruct.Pin = KEYPAD_ST_PIN_1;
-  HAL_GPIO_Init(KEYPAD_ST_PORT_1, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = KEYPAD_ST_PIN_2;
-  HAL_GPIO_Init(KEYPAD_ST_PORT_2, &GPIO_InitStruct);
-
-  /* Configure Column Inputs: PA0, PA1, PA3, PA4, PA5 with internal Pull-down
-   * resistors */
-  GPIO_InitStruct.Pin = KEYPAD_COL1_PIN | KEYPAD_COL2_PIN | KEYPAD_COL3_PIN |
-                        KEYPAD_COL4_PIN | KEYPAD_COL5_PIN;
+  /* Configure Column Inputs (COL0..COL3) with internal Pull-up resistors */
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(KEYPAD_COL_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_COL0_PIN;
+  HAL_GPIO_Init(KEYPAD_COL0_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_COL1_PIN;
+  HAL_GPIO_Init(KEYPAD_COL1_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_COL2_PIN;
+  HAL_GPIO_Init(KEYPAD_COL2_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_COL3_PIN;
+  HAL_GPIO_Init(KEYPAD_COL3_PORT, &GPIO_InitStruct);
+
+  /* Configure Row Pins (ROW0..ROW4) as Open-Drain Outputs initialized to HIGH */
+  HAL_GPIO_WritePin(KEYPAD_ROW0_PORT, KEYPAD_ROW0_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(KEYPAD_ROW1_PORT, KEYPAD_ROW1_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(KEYPAD_ROW2_PORT, KEYPAD_ROW2_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(KEYPAD_ROW3_PORT, KEYPAD_ROW3_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(KEYPAD_ROW4_PORT, KEYPAD_ROW4_PIN, GPIO_PIN_SET);
+
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+  GPIO_InitStruct.Pin = KEYPAD_ROW0_PIN;
+  HAL_GPIO_Init(KEYPAD_ROW0_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_ROW1_PIN;
+  HAL_GPIO_Init(KEYPAD_ROW1_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_ROW2_PIN;
+  HAL_GPIO_Init(KEYPAD_ROW2_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_ROW3_PIN;
+  HAL_GPIO_Init(KEYPAD_ROW3_PORT, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = KEYPAD_ROW4_PIN;
+  HAL_GPIO_Init(KEYPAD_ROW4_PORT, &GPIO_InitStruct);
 }
 /* USER CODE END 4 */
 

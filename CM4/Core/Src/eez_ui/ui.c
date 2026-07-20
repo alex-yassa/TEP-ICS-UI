@@ -47,105 +47,92 @@ void ui_init() {
 #if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
 #ifndef PC_SIMULATOR
 #include "main.h"
-static uint16_t scan_keypad_matrix(void) {
-    uint16_t pressed_mask = 0;
+uint32_t scan_keypad_matrix(void) {
+    static const struct { GPIO_TypeDef *port; uint16_t pin; } rows[5] = {
+        { KEYPAD_ROW0_PORT, KEYPAD_ROW0_PIN },
+        { KEYPAD_ROW1_PORT, KEYPAD_ROW1_PIN },
+        { KEYPAD_ROW2_PORT, KEYPAD_ROW2_PIN },
+        { KEYPAD_ROW3_PORT, KEYPAD_ROW3_PIN },
+        { KEYPAD_ROW4_PORT, KEYPAD_ROW4_PIN },
+    };
+    static const struct { GPIO_TypeDef *port; uint16_t pin; } cols[4] = {
+        { KEYPAD_COL0_PORT, KEYPAD_COL0_PIN },
+        { KEYPAD_COL1_PORT, KEYPAD_COL1_PIN },
+        { KEYPAD_COL2_PORT, KEYPAD_COL2_PIN },
+        { KEYPAD_COL3_PORT, KEYPAD_COL3_PIN },
+    };
 
-    // Scan Strobe 1 (PC6)
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_RESET);
-    for (volatile int i = 0; i < 50; i++); 
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL1_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 0); // START_LEFT (K11)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL2_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 1); // START_RIGHT (K12)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL3_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 4); // DOWN (K22)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL4_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 3); // UP (K12)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL5_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 2); // STOP (K11)
-    }
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_RESET);
+    uint32_t pressed_mask = 0;
 
-    // Scan Strobe 2 (PB0)
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_SET);
-    for (volatile int i = 0; i < 50; i++); 
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL1_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 6); // RIGHT (K32)
+    for (int y = 0; y < 5; y++) {
+        // Drive current row LOW
+        HAL_GPIO_WritePin(rows[y].port, rows[y].pin, GPIO_PIN_RESET);
+
+        // Brief settling delay (~10us)
+        for (volatile int i = 0; i < 150; i++);
+
+        // Read columns (COL0..COL3)
+        for (int x = 0; x < 4; x++) {
+            if (HAL_GPIO_ReadPin(cols[x].port, cols[x].pin) == GPIO_PIN_RESET) {
+                pressed_mask |= (1U << (x * 5 + y));
+            }
+        }
+
+        // Release current row back to HIGH
+        HAL_GPIO_WritePin(rows[y].port, rows[y].pin, GPIO_PIN_SET);
     }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL2_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 5); // LEFT (K21)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL3_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 7); // ENTER (K31)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL4_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 9); // FUNCTION (K32)
-    }
-    if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL5_PIN) == GPIO_PIN_SET) {
-        pressed_mask |= (1 << 8); // ESCAPE (K31)
-    }
-    HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_RESET);
 
     return pressed_mask;
 }
 
-static uint16_t g_pressed_keys_mask = 0;
-#define IS_UP_PRESSED()    (g_pressed_keys_mask & (1 << 3))
-#define IS_DOWN_PRESSED()  (g_pressed_keys_mask & (1 << 4))
-#define IS_LEFT_PRESSED()  (g_pressed_keys_mask & (1 << 5))
-#define IS_RIGHT_PRESSED() (g_pressed_keys_mask & (1 << 6))
-#define IS_ENTER_PRESSED() (g_pressed_keys_mask & (1 << 7))
-#define IS_BACK_PRESSED()  (g_pressed_keys_mask & (1 << 8))
+static uint32_t g_pressed_keys_mask = 0;
 #else
-extern bool sim_key_up, sim_key_down, sim_key_left, sim_key_right, sim_key_enter, sim_key_back;
-#define IS_UP_PRESSED()    sim_key_up
-#define IS_DOWN_PRESSED()  sim_key_down
-#define IS_LEFT_PRESSED()  sim_key_left
-#define IS_RIGHT_PRESSED() sim_key_right
-#define IS_ENTER_PRESSED() sim_key_enter
-#define IS_BACK_PRESSED()  sim_key_back
+extern uint32_t sim_pressed_keys_mask;
+#define g_pressed_keys_mask sim_pressed_keys_mask
 #endif
+
+#define IS_KEY_PRESSED(bit) (g_pressed_keys_mask & (1U << (bit)))
 
 static void update_keyboard_test_button_states(void) {
     if (objects.keyboard_test) {
 #ifndef PC_SIMULATOR
         g_pressed_keys_mask = scan_keypad_matrix();
 #endif
-        if (IS_UP_PRESSED()) {
-            lv_obj_add_state(objects.btn_up, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_up, LV_STATE_PRESSED);
-        }
-        if (IS_DOWN_PRESSED()) {
-            lv_obj_add_state(objects.btn_down, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_down, LV_STATE_PRESSED);
-        }
-        if (IS_LEFT_PRESSED()) {
-            lv_obj_add_state(objects.btn_left, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_left, LV_STATE_PRESSED);
-        }
-        if (IS_RIGHT_PRESSED()) {
-            lv_obj_add_state(objects.btn_right, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_right, LV_STATE_PRESSED);
-        }
-        if (IS_ENTER_PRESSED()) {
-            lv_obj_add_state(objects.btn_enter, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_enter, LV_STATE_PRESSED);
-        }
-        if (IS_BACK_PRESSED()) {
-            lv_obj_add_state(objects.btn_backspace, LV_STATE_PRESSED);
-        } else {
-            lv_obj_clear_state(objects.btn_backspace, LV_STATE_PRESSED);
+        struct { lv_obj_t **obj; int bit; } btn_map[] = {
+            // COL0: Nav Cluster
+            { &objects.btn_up,        0 },
+            { &objects.btn_down,      1 },
+            { &objects.btn_left,      2 },
+            { &objects.btn_right,     3 },
+            { &objects.btn_enter,     4 },
+            // COL1: Vertical Strip
+            { &objects.btn_backspace, 5 }, // v01 / V1
+            { &objects.btn_v_2,       6 },
+            { &objects.btn_v_3,       7 },
+            { &objects.btn_v_4,       8 },
+            { &objects.btn_v_5,       9 },
+            // COL2: Horizontal Board 1 (Left)
+            { &objects.btn_g_1,      10 },
+            { &objects.btn_g_2,      11 },
+            { &objects.btn_g_3,      12 },
+            { &objects.btn_g_4,      13 },
+            { &objects.btn_g_5,      14 },
+            // COL3: Horizontal Board 2 (Right)
+            { &objects.btn_g_6,      15 },
+            { &objects.btn_g_7,      16 },
+            { &objects.btn_g_8,      17 },
+            { &objects.btn_g_9,      18 },
+            { &objects.btn_g_10,     19 },
+        };
+
+        for (size_t i = 0; i < sizeof(btn_map)/sizeof(btn_map[0]); i++) {
+            if (*btn_map[i].obj) {
+                if (IS_KEY_PRESSED(btn_map[i].bit)) {
+                    lv_obj_add_state(*btn_map[i].obj, LV_STATE_PRESSED);
+                } else {
+                    lv_obj_clear_state(*btn_map[i].obj, LV_STATE_PRESSED);
+                }
+            }
         }
     }
 }

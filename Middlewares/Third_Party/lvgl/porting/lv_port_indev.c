@@ -136,56 +136,26 @@ static void keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
   }
 }
 
+extern uint32_t scan_keypad_matrix(void);
+
 /**
-  * @brief Scan the 3x2 matrix keypad and return the pressed key code
+  * @brief Return the pressed key code for LVGL navigation from matrix scan
   */
 static uint32_t keypad_get_key(void)
 {
-  uint32_t pressed_key = 0;
+  uint32_t pressed_mask = scan_keypad_matrix();
 
-  /* Scan Strobe 1 (PC6) */
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_RESET);
-  for (volatile int i = 0; i < 50; i++); 
-
-  // Check Col 4 (PA4) for UP
-  if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL4_PIN) == GPIO_PIN_SET) {
-    pressed_key = 1; /* UP */
-  } 
-  // Check Col 3 (PA3) for DOWN
-  else if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL3_PIN) == GPIO_PIN_SET) {
-    pressed_key = 2; /* DOWN */
+  // Detect simultaneous Left + Right (bit 2 = Left, bit 3 = Right on COL0)
+  if ((pressed_mask & (1U << 2)) && (pressed_mask & (1U << 3))) {
+    return 7; /* BOTH_LEFT_RIGHT */
   }
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_RESET);
-  if (pressed_key != 0) return pressed_key;
 
-  /* Scan Strobe 2 (PB0) */
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_1, KEYPAD_ST_PIN_1, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_SET);
-  for (volatile int i = 0; i < 50; i++); 
+  if (pressed_mask & (1U << 0)) return 1; /* UP (COL0, ROW0) */
+  if (pressed_mask & (1U << 1)) return 2; /* DOWN (COL0, ROW1) */
+  if (pressed_mask & (1U << 2)) return 5; /* LEFT (COL0, ROW2) */
+  if (pressed_mask & (1U << 3)) return 6; /* RIGHT (COL0, ROW3) */
+  if (pressed_mask & (1U << 4)) return 3; /* ENTER / OK (COL0, ROW4) */
+  if (pressed_mask & (1U << 5)) return 4; /* ESC / V1 (COL1, ROW0) */
 
-  // Check Col 3 (PA3) for ENTER
-  if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL3_PIN) == GPIO_PIN_SET) {
-    pressed_key = 3; /* ENTER */
-  } 
-  // Check Col 5 (PA5) for ESC
-  else if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL5_PIN) == GPIO_PIN_SET) {
-    pressed_key = 4; /* ESC */
-  } 
-  // Check Col 2 (PA1) and Col 1 (PA0) simultaneously for LEFT + RIGHT
-  else if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL2_PIN) == GPIO_PIN_SET &&
-           HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL1_PIN) == GPIO_PIN_SET) {
-    pressed_key = 7; /* BOTH_LEFT_RIGHT */
-  }
-  // Check Col 2 (PA1) for LEFT
-  else if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL2_PIN) == GPIO_PIN_SET) {
-    pressed_key = 5; /* LEFT */
-  } 
-  // Check Col 1 (PA0) for RIGHT
-  else if (HAL_GPIO_ReadPin(KEYPAD_COL_PORT, KEYPAD_COL1_PIN) == GPIO_PIN_SET) {
-    pressed_key = 6; /* RIGHT */
-  }
-  HAL_GPIO_WritePin(KEYPAD_ST_PORT_2, KEYPAD_ST_PIN_2, GPIO_PIN_RESET);
-
-  return pressed_key;
+  return 0;
 }

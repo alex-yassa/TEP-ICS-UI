@@ -13,4 +13,7 @@ void sdl_indev_init(void);
 /* Handle SDL keyboard events and map them to LVGL key codes */
 void sdl_handle_key_event(SDL_Event *event);
 
+/* 20-button matrix simulator key state mask (col*5 + row) */
+extern uint32_t sim_pressed_keys_mask;
+
 #endif /* SDL_PORT_H */

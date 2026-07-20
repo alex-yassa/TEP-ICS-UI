@@ -144,6 +144,20 @@ typedef struct _objects_t {
     lv_obj_t *btn_down;
     lv_obj_t *btn_backspace;
     lv_obj_t *btn_enter;
+    lv_obj_t *btn_v_2;
+    lv_obj_t *btn_v_3;
+    lv_obj_t *btn_v_4;
+    lv_obj_t *btn_v_5;
+    lv_obj_t *btn_g_1;
+    lv_obj_t *btn_g_2;
+    lv_obj_t *btn_g_3;
+    lv_obj_t *btn_g_4;
+    lv_obj_t *btn_g_5;
+    lv_obj_t *btn_g_6;
+    lv_obj_t *btn_g_7;
+    lv_obj_t *btn_g_8;
+    lv_obj_t *btn_g_9;
+    lv_obj_t *btn_g_10;
 } objects_t;
 
 extern objects_t objects;

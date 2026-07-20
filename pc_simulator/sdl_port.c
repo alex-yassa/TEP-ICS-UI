@@ -21,6 +21,7 @@ static lv_indev_drv_t indev_drv;
 static lv_indev_t *keypad_indev = NULL;
 
 /* Simulator keyboard state tracking for keyboard test screen */
+uint32_t sim_pressed_keys_mask = 0;
 bool sim_key_up = false;
 bool sim_key_down = false;
 bool sim_key_left = false;
@@ -170,13 +171,27 @@ void sdl_handle_key_event(SDL_Event *event)
     key_pressed = true;
 
     switch (event->key.keysym.sym) {
-      case SDLK_UP:     sim_key_up = true; break;
-      case SDLK_DOWN:   sim_key_down = true; break;
-      case SDLK_LEFT:   sim_key_left = true; break;
-      case SDLK_RIGHT:  sim_key_right = true; break;
+      case SDLK_UP:        sim_pressed_keys_mask |= (1U << 0);  sim_key_up = true; break;
+      case SDLK_DOWN:      sim_pressed_keys_mask |= (1U << 1);  sim_key_down = true; break;
+      case SDLK_LEFT:      sim_pressed_keys_mask |= (1U << 2);  sim_key_left = true; break;
+      case SDLK_RIGHT:     sim_pressed_keys_mask |= (1U << 3);  sim_key_right = true; break;
       case SDLK_RETURN:
-      case SDLK_KP_ENTER: sim_key_enter = true; break;
-      case SDLK_ESCAPE: sim_key_back = true; break;
+      case SDLK_KP_ENTER:  sim_pressed_keys_mask |= (1U << 4);  sim_key_enter = true; break;
+      case SDLK_ESCAPE:    sim_pressed_keys_mask |= (1U << 5);  sim_key_back = true; break;
+      case SDLK_F2:        sim_pressed_keys_mask |= (1U << 6);  break;
+      case SDLK_F3:        sim_pressed_keys_mask |= (1U << 7);  break;
+      case SDLK_F4:        sim_pressed_keys_mask |= (1U << 8);  break;
+      case SDLK_F5:        sim_pressed_keys_mask |= (1U << 9);  break;
+      case SDLK_1:         sim_pressed_keys_mask |= (1U << 10); break;
+      case SDLK_2:         sim_pressed_keys_mask |= (1U << 11); break;
+      case SDLK_3:         sim_pressed_keys_mask |= (1U << 12); break;
+      case SDLK_4:         sim_pressed_keys_mask |= (1U << 13); break;
+      case SDLK_5:         sim_pressed_keys_mask |= (1U << 14); break;
+      case SDLK_6:         sim_pressed_keys_mask |= (1U << 15); break;
+      case SDLK_7:         sim_pressed_keys_mask |= (1U << 16); break;
+      case SDLK_8:         sim_pressed_keys_mask |= (1U << 17); break;
+      case SDLK_9:         sim_pressed_keys_mask |= (1U << 18); break;
+      case SDLK_0:         sim_pressed_keys_mask |= (1U << 19); break;
     }
 
     if (event->key.keysym.sym == SDLK_LEFT) left_held = true;
@@ -252,13 +267,27 @@ void sdl_handle_key_event(SDL_Event *event)
   {
     key_pressed = false;
     switch (event->key.keysym.sym) {
-      case SDLK_UP:     sim_key_up = false; break;
-      case SDLK_DOWN:   sim_key_down = false; break;
-      case SDLK_LEFT:   sim_key_left = false; break;
-      case SDLK_RIGHT:  sim_key_right = false; break;
+      case SDLK_UP:        sim_pressed_keys_mask &= ~(1U << 0);  sim_key_up = false; break;
+      case SDLK_DOWN:      sim_pressed_keys_mask &= ~(1U << 1);  sim_key_down = false; break;
+      case SDLK_LEFT:      sim_pressed_keys_mask &= ~(1U << 2);  sim_key_left = false; break;
+      case SDLK_RIGHT:     sim_pressed_keys_mask &= ~(1U << 3);  sim_key_right = false; break;
       case SDLK_RETURN:
-      case SDLK_KP_ENTER: sim_key_enter = false; break;
-      case SDLK_ESCAPE: sim_key_back = false; break;
+      case SDLK_KP_ENTER:  sim_pressed_keys_mask &= ~(1U << 4);  sim_key_enter = false; break;
+      case SDLK_ESCAPE:    sim_pressed_keys_mask &= ~(1U << 5);  sim_key_back = false; break;
+      case SDLK_F2:        sim_pressed_keys_mask &= ~(1U << 6);  break;
+      case SDLK_F3:        sim_pressed_keys_mask &= ~(1U << 7);  break;
+      case SDLK_F4:        sim_pressed_keys_mask &= ~(1U << 8);  break;
+      case SDLK_F5:        sim_pressed_keys_mask &= ~(1U << 9);  break;
+      case SDLK_1:         sim_pressed_keys_mask &= ~(1U << 10); break;
+      case SDLK_2:         sim_pressed_keys_mask &= ~(1U << 11); break;
+      case SDLK_3:         sim_pressed_keys_mask &= ~(1U << 12); break;
+      case SDLK_4:         sim_pressed_keys_mask &= ~(1U << 13); break;
+      case SDLK_5:         sim_pressed_keys_mask &= ~(1U << 14); break;
+      case SDLK_6:         sim_pressed_keys_mask &= ~(1U << 15); break;
+      case SDLK_7:         sim_pressed_keys_mask &= ~(1U << 16); break;
+      case SDLK_8:         sim_pressed_keys_mask &= ~(1U << 17); break;
+      case SDLK_9:         sim_pressed_keys_mask &= ~(1U << 18); break;
+      case SDLK_0:         sim_pressed_keys_mask &= ~(1U << 19); break;
     }
     if (event->key.keysym.sym == SDLK_LEFT) left_held = false;
     if (event->key.keysym.sym == SDLK_RIGHT) right_held = false;
