@@ -154,12 +154,14 @@ int main(void) {
 static void MX_GPIO_Init(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* Enable GPIO Clocks for keypad (GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOK) */
+  /* Enable GPIO Clocks for keypad (GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOG, GPIOI, GPIOK) */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOI_CLK_ENABLE();
   __HAL_RCC_GPIOK_CLK_ENABLE();
 
   /* Configure Column Inputs (COL0..COL3) with internal Pull-up resistors */

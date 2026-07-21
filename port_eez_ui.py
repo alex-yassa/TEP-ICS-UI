@@ -234,7 +234,6 @@ void ui_init() {
     splash_start_time = lv_tick_get();
 }
 
-#if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
 #ifndef PC_SIMULATOR
 #include "main.h"
 uint32_t scan_keypad_matrix(void) {
@@ -274,20 +273,17 @@ uint32_t scan_keypad_matrix(void) {
 
     return pressed_mask;
 }
-
-static uint32_t g_pressed_keys_mask = 0;
 #else
 extern uint32_t sim_pressed_keys_mask;
-#define g_pressed_keys_mask sim_pressed_keys_mask
+uint32_t scan_keypad_matrix(void) {
+    return sim_pressed_keys_mask;
+}
 #endif
 
-#define IS_KEY_PRESSED(bit) (g_pressed_keys_mask & (1U << (bit)))
-
+#if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
 static void update_keyboard_test_button_states(void) {
     if (objects.keyboard_test) {
-#ifndef PC_SIMULATOR
-        g_pressed_keys_mask = scan_keypad_matrix();
-#endif
+        uint32_t g_pressed_keys_mask = scan_keypad_matrix();
         struct { lv_obj_t **obj; int bit; } btn_map[] = {
             // COL0: Nav Cluster
             { &objects.btn_up,        0 },
@@ -317,7 +313,7 @@ static void update_keyboard_test_button_states(void) {
 
         for (size_t i = 0; i < sizeof(btn_map)/sizeof(btn_map[0]); i++) {
             if (*btn_map[i].obj) {
-                if (IS_KEY_PRESSED(btn_map[i].bit)) {
+                if (g_pressed_keys_mask & (1U << (btn_map[i].bit))) {
                     lv_obj_add_state(*btn_map[i].obj, LV_STATE_PRESSED);
                 } else {
                     lv_obj_clear_state(*btn_map[i].obj, LV_STATE_PRESSED);

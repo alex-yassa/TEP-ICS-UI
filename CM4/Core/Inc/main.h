@@ -76,26 +76,26 @@ void Error_Handler(void);
 
 /* Pin mappings for the physical HMI buttons (20-Button 5x4 Matrix Keypad) */
 /* Rows (Active Low scan outputs) */
-#define KEYPAD_ROW0_PORT                  GPIOA
-#define KEYPAD_ROW0_PIN                   GPIO_PIN_5  // PA5  -> ROW0 (P8 Pin 5)
-#define KEYPAD_ROW1_PORT                  GPIOE
-#define KEYPAD_ROW1_PIN                   GPIO_PIN_4  // PE4  -> ROW1 (P8 Pin 9)
-#define KEYPAD_ROW2_PORT                  GPIOK
-#define KEYPAD_ROW2_PIN                   GPIO_PIN_1  // PK1  -> ROW2 (P8 Pin 11)
-#define KEYPAD_ROW3_PORT                  GPIOD
-#define KEYPAD_ROW3_PIN                   GPIO_PIN_12 // PD12 -> ROW3 (P8 Pin 13)
-#define KEYPAD_ROW4_PORT                  GPIOD
-#define KEYPAD_ROW4_PIN                   GPIO_PIN_13 // PD13 -> ROW4 (P8 Pin 15)
+#define KEYPAD_ROW0_PORT                  GPIOD
+#define KEYPAD_ROW0_PIN                   GPIO_PIN_12 // PD12  -> ROW0 (P8 Pin 13)
+#define KEYPAD_ROW1_PORT                  GPIOD
+#define KEYPAD_ROW1_PIN                   GPIO_PIN_13 // PD13  -> ROW1 (P8 Pin 15)
+#define KEYPAD_ROW2_PORT                  GPIOA
+#define KEYPAD_ROW2_PIN                   GPIO_PIN_9  // PA9   -> ROW2 (P8 Pin 25)
+#define KEYPAD_ROW3_PORT                  GPIOA
+#define KEYPAD_ROW3_PIN                   GPIO_PIN_10 // PA10  -> ROW3 (P8 Pin 27)
+#define KEYPAD_ROW4_PORT                  GPIOC
+#define KEYPAD_ROW4_PIN                   GPIO_PIN_13 // PC13  -> ROW4 (P8 Pin 30)
 
 /* Columns (Inputs with internal Pull-up) */
-#define KEYPAD_COL0_PORT                  GPIOA
-#define KEYPAD_COL0_PIN                   GPIO_PIN_4  // PA4  -> COL0 (P8 Pin 8 - Nav Cluster)
-#define KEYPAD_COL1_PORT                  GPIOD
-#define KEYPAD_COL1_PIN                   GPIO_PIN_11 // PD11 -> COL1 (P8 Pin 10 - Vertical Strip)
-#define KEYPAD_COL2_PORT                  GPIOB
-#define KEYPAD_COL2_PIN                   GPIO_PIN_10 // PB10 -> COL2 (P8 Pin 12 - Horiz Board 1)
-#define KEYPAD_COL3_PORT                  GPIOC
-#define KEYPAD_COL3_PIN                   GPIO_PIN_7  // PC7  -> COL3 (P8 Pin 14 - Horiz Board 2)
+#define KEYPAD_COL0_PORT                  GPIOB
+#define KEYPAD_COL0_PIN                   GPIO_PIN_10 // PB10  -> COL0 (P8 Pin 12 - Nav Cluster)
+#define KEYPAD_COL1_PORT                  GPIOC
+#define KEYPAD_COL1_PIN                   GPIO_PIN_7  // PC7   -> COL1 (P8 Pin 14 - Vertical Strip)
+#define KEYPAD_COL2_PORT                  GPIOA
+#define KEYPAD_COL2_PIN                   GPIO_PIN_3  // PA3   -> COL2 (P8 Pin 16 - Horiz Board 1)
+#define KEYPAD_COL3_PORT                  GPIOB
+#define KEYPAD_COL3_PIN                   GPIO_PIN_12 // PB12  -> COL3 (P8 Pin 38 - Horiz Board 2)
 /* USER CODE END Private defines */
 
 /* Exported functions prototypes ---------------------------------------------*/
