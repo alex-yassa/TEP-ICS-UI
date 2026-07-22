@@ -87,11 +87,11 @@ const ext_img_desc_t images[3] = {
                 '_SCREEN_ID_LAST = 2'
             )
             
-        # Add splash variables to objects_t
+        # Add splash variables to end of objects_t so EEZ Studio widget index offsets remain unshifted
         if "splash_obj0" not in content:
             content = content.replace(
-                'typedef struct _objects_t {\n    lv_obj_t *dashboard;',
-                'typedef struct _objects_t {\n    lv_obj_t *main;\n    lv_obj_t *dashboard;\n    \n    // Splash screen components\n    lv_obj_t *splash_obj0;\n    lv_obj_t *splash_obj1;'
+                '} objects_t;',
+                '    lv_obj_t *main;\n    lv_obj_t *splash_obj0;\n    lv_obj_t *splash_obj1;\n} objects_t;'
             )
             
         # Add main screen functions
@@ -101,6 +101,44 @@ const ext_img_desc_t images[3] = {
                 'void create_screen_main();\nvoid tick_screen_main();\n\nvoid create_screen_dashboard();'
             )
             
+        # Automatically generate compatibility aliases for all User Widget instances (login window, pinpad, etc.)
+        import re
+        raw_fields = re.findall(r'lv_obj_t\s+\*(obj\d+__[a-zA-Z0-9_]+);', content)
+        aliases = []
+        defined_bases = set()
+
+        for full_field in raw_fields:
+            # Remove prefix obj<N>__
+            unprefixed = re.sub(r'^obj\d+__', '', full_field)
+            
+            base_name = None
+            # Exact mapping for pinpad buttons auto-numbered by EEZ Studio as pinpad_btn_1X
+            pinpad_map = {
+                "pinpad_btn_10": "pinpad_btn_1",
+                "pinpad_btn_11": "pinpad_btn_2",
+                "pinpad_btn_12": "pinpad_btn_3",
+                "pinpad_btn_13": "pinpad_btn_4",
+                "pinpad_btn_14": "pinpad_btn_5",
+                "pinpad_btn_15": "pinpad_btn_6",
+                "pinpad_btn_16": "pinpad_btn_7",
+                "pinpad_btn_17": "pinpad_btn_8",
+                "pinpad_btn_18": "pinpad_btn_9",
+                "pinpad_btn_19": "pinpad_btn_0",
+            }
+            if unprefixed in pinpad_map:
+                base_name = pinpad_map[unprefixed]
+            else:
+                # Standard case: strip trailing _<instance_id> (e.g., _1)
+                base_name = re.sub(r'_\d+$', '', unprefixed)
+                
+            if base_name and not re.match(r'^obj\d+$', base_name) and base_name not in defined_bases and f"#define {base_name} " not in content and f"#define {base_name}\t" not in content:
+                defined_bases.add(base_name)
+                aliases.append(f"#define {base_name:<27} {full_field}")
+
+        if aliases:
+            alias_block = "\n" + "\n".join(aliases) + "\n"
+            content = content.replace("#endif /*EEZ_LVGL_UI_SCREENS_H*/", alias_block + "\n#endif /*EEZ_LVGL_UI_SCREENS_H*/")
+
         with open(screens_h_path, "w") as f:
             f.write(content)
             
@@ -202,17 +240,17 @@ static int16_t currentScreen = -1;
 static uint32_t splash_start_time = 0;
 static bool splash_done = false;
 
-static lv_obj_t *getLvglObjectFromIndex(int32_t index) {
-    if (index == -1) {
-        return 0;
-    }
-    return ((lv_obj_t **)&objects)[index];
-}
-
 void loadScreen(enum ScreensEnum screenId) {
     currentScreen = screenId - 1;
-    lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
-    lv_scr_load(screen);
+    lv_obj_t *screen = NULL;
+    if (screenId == SCREEN_ID_MAIN) {
+        screen = objects.main;
+    } else if (screenId == SCREEN_ID_DASHBOARD) {
+        screen = objects.dashboard;
+    }
+    if (screen) {
+        lv_scr_load(screen);
+    }
 
     // If dashboard is loaded, check if we should show/hide keyboard test panel
     if (screenId == SCREEN_ID_DASHBOARD) {

@@ -1,6 +1,7 @@
 #include "actions.h"
 #include "ui.h"
 #include "screens.h"
+
 #include "app_hardware.h"
 #include "styles.h"
 #include "sha256.h"
@@ -515,6 +516,43 @@ static bool       pinpad_visible = false;
 static uint32_t   last_pinpad_hide_time = 0;
 static uint32_t   last_pinpad_show_time = 0;
 
+static void set_login_modal_hidden(bool hidden)
+{
+    if (objects.login_modal) {
+        if (hidden) {
+            lv_obj_add_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_t *parent = lv_obj_get_parent(objects.login_modal);
+            if (parent && parent != objects.dashboard) {
+                lv_obj_add_flag(parent, LV_OBJ_FLAG_HIDDEN);
+            }
+        } else {
+            lv_obj_clear_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_t *parent = lv_obj_get_parent(objects.login_modal);
+            if (parent && parent != objects.dashboard) {
+                lv_obj_clear_flag(parent, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+    }
+}
+
+static void set_pinpad_hidden(bool hidden)
+{
+    if (objects.pinpad_panel) {
+        lv_obj_t *parent = lv_obj_get_parent(objects.pinpad_panel);
+        if (hidden) {
+            lv_obj_add_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
+            if (parent && parent != objects.dashboard && parent != objects.login_modal) {
+                lv_obj_add_flag(parent, LV_OBJ_FLAG_HIDDEN);
+            }
+        } else {
+            lv_obj_clear_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
+            if (parent && parent != objects.dashboard && parent != objects.login_modal) {
+                lv_obj_clear_flag(parent, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+    }
+}
+
 static void hide_pinpad(void);
 static void show_pinpad(lv_obj_t * ta);
 
@@ -531,7 +569,7 @@ static void close_login_modal(void)
             login_password_ta = NULL;
         }
     } else {
-        lv_obj_add_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+        set_login_modal_hidden(true);
     }
     if (modal_group) {
         // Restore all input devices to the previous group
@@ -710,7 +748,7 @@ static void show_pinpad(lv_obj_t *ta)
 
     // Show login_modal as it is the parent of pinpad_panel
     if (objects.login_modal) {
-        lv_obj_clear_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+        set_login_modal_hidden(false);
         
         // Hide the sign-in card if we're inputting settings values
         if (ta != objects.login_password_ta && ta != login_password_ta) {
@@ -727,7 +765,7 @@ static void show_pinpad(lv_obj_t *ta)
         }
     }
 
-    lv_obj_clear_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
+    set_pinpad_hidden(false);
 
     /* Create a focus group containing all pinpad buttons */
     pinpad_group = lv_group_create();
@@ -767,15 +805,13 @@ static void hide_pinpad(void)
     lv_obj_t *target = pinpad_target_ta;
     pinpad_target_ta = NULL;
 
-    if (objects.pinpad_panel) {
-        lv_obj_add_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
-    }
+    set_pinpad_hidden(true);
 
     // Hide or restore login_modal depending on context
     if (objects.login_modal) {
         if (!modal_group) {
             // Re-hide login_modal overlay if we were editing settings
-            lv_obj_add_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+            set_login_modal_hidden(true);
         } else {
             // Restore login card visibility
             if (objects.login_card) {
@@ -857,7 +893,8 @@ void action_login_button_clicked(lv_event_t *e)
         app_log_event("User logged out");
     } else {
         // Guard: If login modal is already visible, ignore click to prevent corrupting prev_group
-        if (objects.login_modal && !lv_obj_has_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN)) {
+        if (objects.login_modal && !lv_obj_has_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN) &&
+            (!lv_obj_get_parent(objects.login_modal) || !lv_obj_has_flag(lv_obj_get_parent(objects.login_modal), LV_OBJ_FLAG_HIDDEN))) {
             return;
         }
 
@@ -867,7 +904,7 @@ void action_login_button_clicked(lv_event_t *e)
         modal_group = lv_group_create();
         lv_group_set_default(modal_group);
 
-        lv_obj_clear_flag(objects.login_modal, LV_OBJ_FLAG_HIDDEN);
+        set_login_modal_hidden(false);
         lv_obj_add_flag(objects.login_modal, LV_OBJ_FLAG_CLICKABLE);
 
             // Add EEZ objects to modal group for trapping navigation
@@ -887,9 +924,7 @@ void action_login_button_clicked(lv_event_t *e)
                 lv_group_add_obj(modal_group, objects.login_signin_btn);
             }
             // Ensure pinpad starts hidden when modal opens
-            if (objects.pinpad_panel) {
-                lv_obj_add_flag(objects.pinpad_panel, LV_OBJ_FLAG_HIDDEN);
-            }
+            set_pinpad_hidden(true);
             pinpad_visible = false;
 
             // Switch all input devices to the new modal group to trap keyboard/encoder navigation
@@ -1047,6 +1082,8 @@ void app_ui_init(void)
         register_focus_sync(login_btn);
         lv_obj_add_style(login_btn, get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
     }
+
+    set_login_modal_hidden(true);
 
     if (objects.login_password_ta) {
         lv_obj_add_event_cb(objects.login_password_ta, password_ta_event_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);

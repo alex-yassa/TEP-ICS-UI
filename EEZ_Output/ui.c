@@ -12,17 +12,17 @@ static int16_t currentScreen = -1;
 static uint32_t splash_start_time = 0;
 static bool splash_done = false;
 
-static lv_obj_t *getLvglObjectFromIndex(int32_t index) {
-    if (index == -1) {
-        return 0;
-    }
-    return ((lv_obj_t **)&objects)[index];
-}
-
 void loadScreen(enum ScreensEnum screenId) {
     currentScreen = screenId - 1;
-    lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
-    lv_scr_load(screen);
+    lv_obj_t *screen = NULL;
+    if (screenId == SCREEN_ID_MAIN) {
+        screen = objects.main;
+    } else if (screenId == SCREEN_ID_DASHBOARD) {
+        screen = objects.dashboard;
+    }
+    if (screen) {
+        lv_scr_load(screen);
+    }
 
     // If dashboard is loaded, check if we should show/hide keyboard test panel
     if (screenId == SCREEN_ID_DASHBOARD) {
