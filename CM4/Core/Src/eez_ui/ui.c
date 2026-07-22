@@ -9,8 +9,6 @@
 #include <string.h>
 
 static int16_t currentScreen = -1;
-static uint32_t splash_start_time = 0;
-static bool splash_done = false;
 
 void loadScreen(enum ScreensEnum screenId) {
     currentScreen = screenId - 1;
@@ -40,8 +38,7 @@ void loadScreen(enum ScreensEnum screenId) {
 
 void ui_init() {
     create_screens();
-    loadScreen(SCREEN_ID_MAIN);
-    splash_start_time = lv_tick_get();
+    loadScreen(SCREEN_ID_DASHBOARD);
 }
 
 #ifndef PC_SIMULATOR
@@ -149,11 +146,4 @@ void ui_tick() {
 #if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
     update_keyboard_test_button_states();
 #endif
-
-    if (!splash_done && currentScreen == (SCREEN_ID_MAIN - 1)) {
-        if (lv_tick_elaps(splash_start_time) >= 2000) {
-            splash_done = true;
-            loadScreen(SCREEN_ID_DASHBOARD);
-        }
-    }
 }

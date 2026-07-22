@@ -2389,6 +2389,7 @@ void tick_screen(int screen_index) {
         tick_screen_funcs[screen_index]();
     }
 }
+
 void tick_screen_by_id(enum ScreensEnum screenId) {
     tick_screen(screenId - 1);
 }

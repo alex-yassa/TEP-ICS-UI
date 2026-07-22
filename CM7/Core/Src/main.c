@@ -42,11 +42,44 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "../../../CM4/Core/Src/eez_ui/ui_image_splash_logo.c"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+static void draw_splash_logo_to_framebuffer(void) {
+  uint32_t *fb = (uint32_t *)0xD0000000;
+  
+  /* 1. Pre-fill SDRAM framebuffer with solid blue background */
+  for (uint32_t i = 0; i < 1024 * 600; i++) {
+    fb[i] = 0xFF00008B;
+  }
+  
+  /* 2. Draw centered logo bitmap (412x71) */
+  uint32_t img_w = 412;
+  uint32_t img_h = 71;
+  uint32_t start_x = (1024 - img_w) / 2;
+  uint32_t start_y = (600 - img_h) / 2;
+  
+  for (uint32_t y = 0; y < img_h; y++) {
+    for (uint32_t x = 0; x < img_w; x++) {
+      size_t src_idx = (y * img_w + x) * 3;
+      uint8_t alpha = img_splash_logo_map[src_idx + 2];
+      
+      if (alpha > 0) {
+        /* Alpha-blend pure white (255, 255, 255) over background blue (0, 0, 0x8B) */
+        uint32_t r = alpha;
+        uint32_t g = alpha;
+        uint32_t b = 0x8B + ((255 - 0x8B) * alpha) / 255;
+        
+        size_t dst_idx = (start_y + y) * 1024 + (start_x + x);
+        fb[dst_idx] = 0xFF000000 | (r << 16) | (g << 8) | b;
+      }
+    }
+  }
+}
+/* USER CODE END PTD */
 
 /* USER CODE END PTD */
 
@@ -168,6 +201,9 @@ int main(void)
   MX_ADC3_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
+  /* Pre-fill SDRAM framebuffer with splash background color and centered logo bitmap */
+  draw_splash_logo_to_framebuffer();
+
   /* Release Cortex-M4 now that system peripherals and SDRAM are ready */
   __HAL_RCC_HSEM_CLK_ENABLE();
   HAL_HSEM_FastTake(HSEM_ID_0);

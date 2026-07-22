@@ -209,7 +209,8 @@ void tick_screen(int screen_index) {
     if (screen_index >= 0 && screen_index < 2) {
         tick_screen_funcs[screen_index]();
     }
-}"""
+}
+"""
         if "create_screen_main" not in content:
             content = content.replace(old_tick_funcs, new_tick_funcs)
             
@@ -237,8 +238,6 @@ void tick_screen(int screen_index) {
 #include <string.h>
 
 static int16_t currentScreen = -1;
-static uint32_t splash_start_time = 0;
-static bool splash_done = false;
 
 void loadScreen(enum ScreensEnum screenId) {
     currentScreen = screenId - 1;
@@ -268,8 +267,7 @@ void loadScreen(enum ScreensEnum screenId) {
 
 void ui_init() {
     create_screens();
-    loadScreen(SCREEN_ID_MAIN);
-    splash_start_time = lv_tick_get();
+    loadScreen(SCREEN_ID_DASHBOARD);
 }
 
 #ifndef PC_SIMULATOR
@@ -377,13 +375,6 @@ void ui_tick() {
 #if defined(KEYBOARD_TEST_ENABLE) && KEYBOARD_TEST_ENABLE
     update_keyboard_test_button_states();
 #endif
-
-    if (!splash_done && currentScreen == (SCREEN_ID_MAIN - 1)) {
-        if (lv_tick_elaps(splash_start_time) >= 2000) {
-            splash_done = true;
-            loadScreen(SCREEN_ID_DASHBOARD);
-        }
-    }
 }
 """
         with open(ui_c_path, "w") as f:

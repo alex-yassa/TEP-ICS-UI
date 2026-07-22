@@ -126,6 +126,9 @@ int main(void) {
   ui_init();
   app_ui_init();
 
+  /* Force immediate first frame render of splash screen */
+  lv_timer_handler();
+
   /* USER CODE END 2 */
 
   uint32_t last_tick = HAL_GetTick();
