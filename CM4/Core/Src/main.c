@@ -128,21 +128,24 @@ int main(void) {
 
   /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  uint32_t last_tick = HAL_GetTick();
+
   while (1) {
+    uint32_t current_tick = HAL_GetTick();
+    uint32_t elapsed = current_tick - last_tick;
+    if (elapsed > 0) {
+      lv_tick_inc(elapsed);
+      last_tick = current_tick;
+    }
+
     /* Let LVGL process timer-driven widget rendering & interactions */
     lv_timer_handler();
 
     /* Let EEZ UI process ticks and logical flows */
     ui_tick();
 
-    /* Increment the tick counter by 5ms */
-    lv_tick_inc(5);
-
-    /* Delay for 5ms to maintain visual update frequency and limit bus
-     * contention */
-    HAL_Delay(5);
+    /* Short delay to limit bus contention and yield CPU */
+    HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
