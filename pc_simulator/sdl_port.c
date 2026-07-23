@@ -139,9 +139,14 @@ void sdl_indev_init(void)
 
 extern bool is_pinpad_focused(void);
 extern bool is_keyboard_test_active(void);
+extern bool is_lang_selector_visible(void);
 
 static bool should_use_up_down_keys(void)
 {
+  if (is_lang_selector_visible())
+  {
+    return true;
+  }
   lv_group_t * g = lv_group_get_default();
   if (g == NULL) return false;
   lv_obj_t * focused = lv_group_get_focused(g);

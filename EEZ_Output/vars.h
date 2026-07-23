@@ -13,7 +13,7 @@ extern "C" {
 // Flow global variables
 
 enum FlowGlobalVariables {
-    FLOW_GLOBAL_VARIABLE_NONE
+    FLOW_GLOBAL_VARIABLE_LOGGED_USER = 0
 };
 
 // Native global variables
@@ -40,6 +40,8 @@ extern int32_t get_var_cfg_grid_nom_volt();
 extern void set_var_cfg_grid_nom_volt(int32_t value);
 extern int32_t get_var_cfg_grid_nom_freq();
 extern void set_var_cfg_grid_nom_freq(int32_t value);
+extern const char *get_var_logged_user();
+extern void set_var_logged_user(const char *value);
 
 #ifdef __cplusplus
 }

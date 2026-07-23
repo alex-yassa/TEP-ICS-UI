@@ -50,7 +50,8 @@ static const translation_entry_t translation_table[] = {
     { "Guest",             { "Gość",                  "Guest",             "Гість" } },
     { "%s (Admin)",        { "%s (Admin)",            "%s (Admin)",        "%s (Адмін)" } },
     { "%s (Oper)",         { "%s (Oper)",             "%s (Oper)",         "%s (Оператор)" } },
-    { "%s (View)",         { "%s (Podgląd)",          "%s (View)",         "%s (Переглядач)" } }
+    { "%s (View)",         { "%s (Podgląd)",          "%s (View)",         "%s (Переглядач)" } },
+    { "Language",          { "Język",                 "Language",          "Мова" } }
 };
 
 const char *translate(const char *key, lang_t lang) {
@@ -86,6 +87,9 @@ void ui_translate_update(void) {
     update_button_text(objects.load_management_button, "Load Management", lang);
     update_button_text(objects.diagnostics_button, "Diagnostics", lang);
     update_button_text(objects.sys_settings_button, "Sys settings", lang);
+    if (objects.selected_language_label) {
+        lv_label_set_text(objects.selected_language_label, translate("Language", lang));
+    }
 
     // 2. View titles inside tabs
     if (objects.label_dashboard_title) lv_label_set_text(objects.label_dashboard_title, translate("Dashboard view", lang));

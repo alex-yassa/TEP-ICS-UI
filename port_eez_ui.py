@@ -77,6 +77,12 @@ const ext_img_desc_t images[3] = {
             content = f.read()
             
         # Add SCREEN_ID_MAIN
+        if '#include "ui_translate.h"' not in content:
+            content = content.replace(
+                '#include <lvgl/lvgl.h>',
+                '#include <lvgl/lvgl.h>\n#include "ui_translate.h"\n#ifndef _\n#define _(str) translate(str, (lang_t)g_current_language)\n#endif'
+            )
+
         if "SCREEN_ID_MAIN" not in content:
             content = content.replace(
                 'SCREEN_ID_DASHBOARD = 1,',
@@ -131,7 +137,11 @@ const ext_img_desc_t images[3] = {
                 # Standard case: strip trailing _<instance_id> (e.g., _1)
                 base_name = re.sub(r'_\d+$', '', unprefixed)
                 
-            if base_name and not re.match(r'^obj\d+$', base_name) and base_name not in defined_bases and f"#define {base_name} " not in content and f"#define {base_name}\t" not in content:
+            if (base_name and not re.match(r'^obj\d+$', base_name) 
+                    and base_name not in defined_bases 
+                    and f"#define {base_name} " not in content 
+                    and f"#define {base_name}\t" not in content 
+                    and f"lv_obj_t *{base_name};" not in content):
                 defined_bases.add(base_name)
                 aliases.append(f"#define {base_name:<27} {full_field}")
 
@@ -453,6 +463,20 @@ const char *get_var_header_time() {
 
 void set_var_header_time(const char *value) {
     (void)value;
+}
+
+static char logged_user_buf[32] = "";
+
+const char *get_var_logged_user() {
+    return logged_user_buf;
+}
+
+void set_var_logged_user(const char *value) {
+    if (value) {
+        snprintf(logged_user_buf, sizeof(logged_user_buf), "%s", value);
+    } else {
+        logged_user_buf[0] = '\\0';
+    }
 }
 """
         with open(vars_c_path, "w") as f:

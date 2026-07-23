@@ -69,3 +69,17 @@ const char *get_var_header_time() {
 void set_var_header_time(const char *value) {
     (void)value;
 }
+
+static char logged_user_buf[32] = "";
+
+const char *get_var_logged_user() {
+    return logged_user_buf;
+}
+
+void set_var_logged_user(const char *value) {
+    if (value) {
+        snprintf(logged_user_buf, sizeof(logged_user_buf), "%s", value);
+    } else {
+        logged_user_buf[0] = '\0';
+    }
+}

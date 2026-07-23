@@ -65,6 +65,23 @@ static void btn_focus_sync_cb(lv_event_t *e)
     }
 }
 
+static void get_btn_children_recursive(lv_obj_t *parent, lv_obj_t **btns, uint32_t *count, uint32_t max_count)
+{
+    if (!parent || !btns || !count) return;
+    uint32_t cnt = lv_obj_get_child_cnt(parent);
+    for (uint32_t i = 0; i < cnt; i++) {
+        lv_obj_t *child = lv_obj_get_child(parent, i);
+        if (lv_obj_check_type(child, &lv_btn_class)) {
+            if (*count < max_count) {
+                btns[*count] = child;
+                (*count)++;
+            }
+        } else {
+            get_btn_children_recursive(child, btns, count, max_count);
+        }
+    }
+}
+
 /* Helper: register focus sync on a single button */
 static void register_focus_sync(lv_obj_t *btn)
 {
@@ -1039,6 +1056,25 @@ void app_ui_init(void)
         lv_obj_add_event_cb(objects.lang_selector_button, action_lang_selector_button_clicked, LV_EVENT_CLICKED, NULL);
     }
 
+    /* Initialize language selector widget (objects.obj3) */
+    if (objects.obj3) {
+        lv_obj_add_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_t *btns[16];
+        uint32_t btn_cnt = 0;
+        get_btn_children_recursive(objects.obj3, btns, &btn_cnt, 16);
+
+        extern void lang_widget_btn_event_cb(lv_event_t *e);
+        extern void action_view_2_button_clicked(lv_event_t * e);
+
+        for (uint32_t i = 0; i < btn_cnt; i++) {
+            lv_obj_remove_event_cb(btns[i], action_view_2_button_clicked);
+            register_focus_sync(btns[i]);
+            lv_obj_add_style(btns[i], get_style_btn_menu_style_MAIN_FOCUSED(), LV_STATE_FOCUS_KEY);
+            lv_obj_add_event_cb(btns[i], lang_widget_btn_event_cb, LV_EVENT_ALL, (void *)(uintptr_t)i);
+        }
+    }
+
     /* Initialize language selector label with current dropdown value */
     if (objects.dropdown_lang) {
         g_current_language = lv_dropdown_get_selected(objects.dropdown_lang);
@@ -1225,39 +1261,12 @@ bool is_pinpad_focused(void)
 }
 
 void update_login_status_translations(lang_t lang) {
-    char label_buf[64];
-    if (current_access_level == ACCESS_LEVEL_ADMIN) {
-        snprintf(label_buf, sizeof(label_buf), translate("%s (Admin)", lang), current_username);
-    } else if (current_access_level == ACCESS_LEVEL_OPERATOR) {
-        snprintf(label_buf, sizeof(label_buf), translate("%s (Oper)", lang), current_username);
-    } else if (current_access_level == ACCESS_LEVEL_GUEST && strcmp(current_username, "Guest") != 0) {
-        snprintf(label_buf, sizeof(label_buf), translate("%s (View)", lang), current_username);
-    } else {
-        snprintf(label_buf, sizeof(label_buf), "%s", translate("Guest", lang));
-    }
-    if (objects.login_btn == NULL) {
-        // Dynamic fallback button: single text label at child index 0
-        if (login_btn) {
-            lv_obj_t *btn_lbl = lv_obj_get_child(login_btn, 0);
-            if (btn_lbl) {
-                if (strcmp(current_username, "Guest") == 0) {
-                    lv_label_set_text(btn_lbl, translate("Login", lang));
-                } else {
-                    lv_label_set_text(btn_lbl, translate("Logout", lang));
-                }
-            }
-        }
-    } else {
-        // EEZ-designed button: child 0 is icon "1", child 1 is username/role
-        if (objects.login_btn) {
-            lv_obj_t *icon_lbl = lv_obj_get_child(objects.login_btn, 0);
-            if (icon_lbl) {
-                lv_label_set_text(icon_lbl, "1");
-            }
-            lv_obj_t *user_lbl = lv_obj_get_child(objects.login_btn, 1);
-            if (user_lbl) {
-                lv_label_set_text(user_lbl, label_buf);
-            }
+    lv_obj_t *lbl = get_login_user_label();
+    if (lbl) {
+        if (strcmp(current_username, "Guest") == 0) {
+            lv_label_set_text(lbl, translate("Login", lang));
+        } else {
+            lv_label_set_text(lbl, translate("Logout", lang));
         }
     }
 }
@@ -1321,10 +1330,98 @@ void dropdown_lang_event_cb(lv_event_t *e)
     }
 }
 
+bool is_lang_selector_visible(void)
+{
+    return (objects.obj3 != NULL && !lv_obj_has_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN));
+}
+
+void lang_widget_btn_event_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (code == LV_EVENT_KEY) {
+        uint32_t key = lv_event_get_key(e);
+        if (key == LV_KEY_DOWN || key == LV_KEY_RIGHT || key == LV_KEY_NEXT) {
+            lv_group_t *g = lv_group_get_default();
+            if (g) lv_group_focus_next(g);
+            return;
+        }
+        if (key == LV_KEY_UP || key == LV_KEY_LEFT || key == LV_KEY_PREV) {
+            lv_group_t *g = lv_group_get_default();
+            if (g) lv_group_focus_prev(g);
+            return;
+        }
+        if (key == LV_KEY_ESC) {
+            if (objects.obj3) {
+                lv_obj_add_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+            }
+            set_navigation_mode(NAV_MODE_MENU);
+            if (objects.lang_selector_button) {
+                lv_group_focus_obj(objects.lang_selector_button);
+            }
+            return;
+        }
+    }
+
+    if (code == LV_EVENT_CLICKED) {
+        uint32_t lang_idx = (uint32_t)(uintptr_t)lv_event_get_user_data(e);
+        g_current_language = lang_idx;
+
+        if (objects.dropdown_lang) {
+            lv_dropdown_set_selected(objects.dropdown_lang, lang_idx);
+        }
+
+        ui_translate_update();
+
+        if (objects.obj3) {
+            lv_obj_add_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+        }
+        set_navigation_mode(NAV_MODE_MENU);
+        if (objects.lang_selector_button) {
+            lv_group_focus_obj(objects.lang_selector_button);
+        }
+    }
+}
+
 void action_lang_selector_button_clicked(lv_event_t *e)
 {
     (void)e;
-    if (objects.dropdown_lang) {
+    if (objects.obj3) {
+        bool is_hidden = lv_obj_has_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+        if (is_hidden) {
+            lv_obj_clear_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_move_foreground(objects.obj3);
+
+            /* Set group to contain language selector button children for Up/Down navigation */
+            lv_group_t *g = lv_group_get_default();
+            if (g) {
+                lv_group_remove_all_objs(g);
+                lv_obj_t *btns[16];
+                uint32_t btn_cnt = 0;
+                get_btn_children_recursive(objects.obj3, btns, &btn_cnt, 16);
+
+                lv_obj_t *focus_target = NULL;
+                for (uint32_t i = 0; i < btn_cnt; i++) {
+                    lv_group_add_obj(g, btns[i]);
+                    if (i == (uint32_t)g_current_language) {
+                        focus_target = btns[i];
+                    }
+                    if (!focus_target) {
+                        focus_target = btns[i];
+                    }
+                }
+                if (focus_target) {
+                    lv_group_focus_obj(focus_target);
+                }
+            }
+        } else {
+            lv_obj_add_flag(objects.obj3, LV_OBJ_FLAG_HIDDEN);
+            set_navigation_mode(NAV_MODE_MENU);
+            if (objects.lang_selector_button) {
+                lv_group_focus_obj(objects.lang_selector_button);
+            }
+        }
+    } else if (objects.dropdown_lang) {
         last_dropdown_open_time = lv_tick_get();
 
         /* Open the dropdown list */
